@@ -1,0 +1,449 @@
+<!-- (c) 2026 Aezdek. All rights reserved. Do not redistribute. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AezTrack</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style> :root {--bg: #0d0f12;--bg-card: #13161b;--bg-elevated: #1a1e26;--bg-input: #1e232d;--border: rgba(255,255,255,0.07);--border-focus: rgba(94,201,255,0.5);--text-1: #f0f2f7;--text-2: #8b92a6;--text-3: #555d72;--text-inv: #0d0f12;--accent: #5ec9ff;--accent-dim: rgba(94,201,255,0.12);--accent-glow: rgba(94,201,255,0.25);--green: #3dffc0;--green-dim: rgba(61,255,192,0.12);--amber: #ffb547;--amber-dim: rgba(255,181,71,0.12);--red: #ff5e7e;--red-dim: rgba(255,94,126,0.12);--purple: #b57bff;--purple-dim: rgba(181,123,255,0.12);--nav-w: 220px;--radius-sm: 6px;--radius: 10px;--radius-lg: 16px;--radius-xl: 22px;--font-mono: 'Space Mono', monospace;--font-body: 'DM Sans', sans-serif;--transition: 150ms ease;--shadow-card: 0 1px 3px rgba(0,0,0,0.4), 0 0 0 1px var(--border);}*, *::before, *::after {box-sizing: border-box;margin: 0;padding: 0;}html, body {height: 100%;background: var(--bg);color: var(--text-1);font-family: var(--font-body);font-size: 14px;line-height: 1.5;-webkit-font-smoothing: antialiased;}a {color: var(--accent);text-decoration: none;}::-webkit-scrollbar {width: 5px;height: 5px;}::-webkit-scrollbar-track {background: transparent;}::-webkit-scrollbar-thumb {background: var(--bg-elevated);border-radius: 99px;}.layout {display: flex;height: 100vh;overflow: hidden;}.sidebar {width: var(--nav-w);flex-shrink: 0;background: var(--bg-card);border-right: 1px solid var(--border);display: flex;flex-direction: column;padding: 20px 12px;gap: 4px;overflow-y: auto;}.brand {display: flex;align-items: center;gap: 10px;padding: 8px 12px 20px;border-bottom: 1px solid var(--border);margin-bottom: 8px;}.brand-icon {width: 32px;height: 32px;background: var(--accent);border-radius: var(--radius-sm);display: flex;align-items: center;justify-content: center;color: var(--text-inv);font-size: 15px;flex-shrink: 0;}.brand-name {font-family: var(--font-mono);font-size: 15px;font-weight: 700;color: var(--text-1);letter-spacing: -0.02em;}.brand-ver {font-size: 10px;color: var(--text-3);margin-top: 1px;}.nav-item {display: flex;align-items: center;gap: 10px;padding: 9px 12px;border-radius: var(--radius-sm);cursor: pointer;color: var(--text-2);font-weight: 500;font-size: 13.5px;transition: background var(--transition), color var(--transition);position: relative;user-select: none;}.nav-item:hover {background: var(--bg-elevated);color: var(--text-1);}.nav-item.active {background: var(--accent-dim);color: var(--accent);}.nav-item i {width: 16px;text-align: center;font-size: 13px;}.nav-divider {height: 1px;background: var(--border);margin: 8px 0;}.sidebar-footer {margin-top: auto;padding-top: 12px;border-top: 1px solid var(--border);}.sync-block {padding: 10px 12px;border-radius: var(--radius-sm);cursor: pointer;transition: background var(--transition);}.sync-block:hover {background: var(--bg-elevated);}.sync-row {display: flex;align-items: center;gap: 8px;font-size: 13px;color: var(--text-2);font-weight: 500;}.sync-dot {width: 8px;height: 8px;border-radius: 50%;background: var(--text-3);flex-shrink: 0;transition: background 0.3s;}.sync-dot.syncing {background: var(--amber);animation: pulse-dot 1s infinite;}.sync-dot.synced {background: var(--green);}.sync-dot.error {background: var(--red);}.sync-dot.idle {background: var(--text-3);}@keyframes pulse-dot {0%,100% {opacity: 1;}50% {opacity: 0.3;}}.sync-time {font-size: 11px;color: var(--text-3);margin-top: 2px;padding-left: 16px;}.theme-btn {display: flex;align-items: center;gap: 10px;padding: 9px 12px;border-radius: var(--radius-sm);cursor: pointer;color: var(--text-2);font-weight: 500;font-size: 13.5px;border: none;background: none;width: 100%;transition: background var(--transition), color var(--transition);font-family: var(--font-body);}.theme-btn:hover {background: var(--bg-elevated);color: var(--text-1);}.theme-btn i {width: 16px;text-align: center;font-size: 13px;}.main {flex: 1;overflow-y: auto;padding: 32px;display: flex;flex-direction: column;gap: 24px;}.view {display: none;}.view.active {display: flex;flex-direction: column;gap: 24px;}.page-header {display: flex;align-items: flex-start;justify-content: space-between;gap: 16px;}.page-title {font-size: 22px;font-weight: 700;color: var(--text-1);letter-spacing: -0.02em;}.page-sub {font-size: 13px;color: var(--text-3);margin-top: 2px;}.card {background: var(--bg-card);border: 1px solid var(--border);border-radius: var(--radius-lg);padding: 24px;}.card-sm {padding: 16px;border-radius: var(--radius);}.perf-grid {display: grid;grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));gap: 16px;}.perf-card {background: var(--bg-card);border: 1px solid var(--border);border-radius: var(--radius-lg);padding: 20px;transition: border-color var(--transition), transform var(--transition);cursor: default;}.perf-card:hover {transform: translateY(-2px);}.perf-card.high {border-color: rgba(61,255,192,0.2);}.perf-card.mid {border-color: rgba(255,181,71,0.2);}.perf-card.low {border-color: rgba(255,94,126,0.2);}.perf-subject {font-size: 12px;font-weight: 600;color: var(--text-3);text-transform: uppercase;letter-spacing: .08em;margin-bottom: 8px;}.perf-score {font-family: var(--font-mono);font-size: 32px;font-weight: 700;line-height: 1;}.perf-meta {font-size: 12px;color: var(--text-3);margin-top: 4px;}.perf-card.high .perf-score {color: var(--green);}.perf-card.mid .perf-score {color: var(--amber);}.perf-card.low .perf-score {color: var(--red);}.streak-card {background: linear-gradient(135deg, rgba(181,123,255,0.1), rgba(94,201,255,0.05));border-color: rgba(181,123,255,0.25);}.streak-val {font-family: var(--font-mono);font-size: 28px;font-weight: 700;color: var(--purple);}.wrong-review-item {padding: 10px 14px;background: var(--bg-elevated);border-radius: var(--radius-sm);border-left: 3px solid var(--red);font-size: 13px;color: var(--text-2);}.wrong-review-label {font-size: 11px;font-weight: 600;color: var(--text-3);text-transform: uppercase;letter-spacing: .07em;margin-bottom: 6px;}.pp-controls {display: flex;flex-direction: column;gap: 16px;}.pp-filters-row {display: grid;grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));gap: 12px;}.filter-trigger-btn {display: flex;align-items: center;gap: 8px;padding: 9px 16px;background: var(--bg-elevated);border: 1px solid var(--border);border-radius: var(--radius-sm);color: var(--text-2);font-size: 13px;font-weight: 500;cursor: pointer;transition: all var(--transition);font-family: var(--font-body);}.filter-trigger-btn:hover {border-color: var(--border-focus);color: var(--text-1);}.filter-trigger-btn.has-filters {border-color: var(--accent);color: var(--accent);background: var(--accent-dim);}.doc-tabs {display: flex;gap: 6px;flex-wrap: wrap;}.doc-tab {padding: 7px 14px;border-radius: var(--radius-sm);border: 1px solid var(--border);background: var(--bg-elevated);color: var(--text-2);font-size: 12.5px;font-weight: 500;cursor: pointer;transition: all var(--transition);font-family: var(--font-body);}.doc-tab:hover {border-color: rgba(255,255,255,0.15);color: var(--text-1);}.doc-tab.active {background: var(--accent-dim);border-color: var(--accent);color: var(--accent);}.year-group {margin-bottom: 2px;}.year-header {display: flex;align-items: center;gap: 10px;padding: 10px 14px;background: var(--bg-elevated);border-radius: var(--radius-sm);cursor: pointer;font-weight: 600;font-size: 13px;color: var(--text-2);user-select: none;border: 1px solid var(--border);transition: all var(--transition);}.year-header:hover {color: var(--text-1);border-color: rgba(255,255,255,0.12);}.year-header .year-num {font-family: var(--font-mono);font-size: 14px;color: var(--text-1);}.year-caret {margin-left: auto;font-size: 11px;transition: transform var(--transition);}.year-header.open .year-caret {transform: rotate(90deg);}.session-group {border: 1px solid var(--border);border-top: none;border-radius: 0 0 var(--radius-sm) var(--radius-sm);overflow: hidden;}.session-label {padding: 8px 14px;font-size: 11px;font-weight: 700;color: var(--text-3);text-transform: uppercase;letter-spacing: .08em;background: rgba(255,255,255,0.02);border-bottom: 1px solid var(--border);}.paper-item {display: flex;align-items: center;gap: 12px;padding: 11px 14px;border-bottom: 1px solid var(--border);transition: background var(--transition);}.paper-item:last-child {border-bottom: none;}.paper-item:hover {background: rgba(255,255,255,0.02);}.paper-item.not-found {opacity: 0.45;}.paper-item.logged {background: rgba(61,255,192,0.04);}.paper-name {font-size: 13px;font-weight: 500;color: var(--text-1);flex: 1;}.paper-badges {display: flex;align-items: center;gap: 6px;flex-wrap: wrap;}.badge {display: inline-flex;align-items: center;gap: 4px;padding: 2px 8px;border-radius: 99px;font-size: 11px;font-weight: 600;}.badge-done {background: var(--green-dim);color: var(--green);}.badge-verified {background: var(--accent-dim);color: var(--accent);}.badge-404 {background: var(--red-dim);color: var(--red);}.paper-actions {display: flex;gap: 6px;flex-shrink: 0;}.paper-btn {padding: 5px 12px;border-radius: var(--radius-sm);border: 1px solid var(--border);background: var(--bg-elevated);color: var(--text-2);font-size: 12px;font-weight: 500;cursor: pointer;transition: all var(--transition);font-family: var(--font-body);}.paper-btn:hover:not(:disabled) {border-color: rgba(255,255,255,0.15);color: var(--text-1);}.paper-btn.primary {background: var(--accent-dim);border-color: var(--accent);color: var(--accent);}.paper-btn.primary:hover {background: rgba(94,201,255,0.2);}.paper-btn:disabled {opacity: 0.35;cursor: not-allowed;}.form-grid {display: grid;grid-template-columns: 1fr;gap: 16px;}@media (min-width: 600px) {.form-grid{grid-template-columns: repeat(3, 1fr);}}.form-group {display: flex;flex-direction: column;gap: 6px;}.form-group label {font-size: 11px;font-weight: 700;color: var(--text-3);text-transform: uppercase;letter-spacing: .08em;}input[type="text"], input[type="number"], select, textarea {background: var(--bg-input);border: 1px solid var(--border);border-radius: var(--radius-sm);padding: 9px 12px;color: var(--text-1);font-family: var(--font-body);font-size: 13.5px;transition: border-color var(--transition);width: 100%;appearance: none;-webkit-appearance: none;}input:focus, select:focus, textarea:focus {outline: none;border-color: var(--accent);box-shadow: 0 0 0 3px var(--accent-glow);}select {cursor: pointer;}textarea {min-height: 90px;resize: vertical;}.perc-display {background: var(--bg-input);border: 1px solid var(--border);border-radius: var(--radius-sm);padding: 9px 12px;display: flex;align-items: center;justify-content: center;font-family: var(--font-mono);font-size: 20px;font-weight: 700;color: var(--text-3);}.edit-banner {display: none;align-items: center;gap: 10px;padding: 10px 16px;background: rgba(255,181,71,0.08);border: 1px solid rgba(255,181,71,0.2);border-radius: var(--radius-sm);font-size: 13px;color: var(--amber);}.edit-banner.visible {display: flex;}.edit-banner button {margin-left: auto;background: none;border: none;color: var(--amber);cursor: pointer;font-size: 12px;font-family: var(--font-body);font-weight: 600;text-decoration: underline;}.checkbox-label {display: flex;align-items: center;gap: 8px;font-size: 13px;color: var(--text-2);cursor: pointer;user-select: none;}input[type="checkbox"] {accent-color: var(--accent);width: 15px;height: 15px;}.btn {display: inline-flex;align-items: center;gap: 7px;padding: 9px 18px;border-radius: var(--radius-sm);font-size: 13.5px;font-weight: 600;font-family: var(--font-body);cursor: pointer;border: 1px solid transparent;transition: all var(--transition);white-space: nowrap;}.btn:disabled {opacity: 0.4;cursor: not-allowed;}.btn-primary {background: var(--accent);color: var(--text-inv);border-color: var(--accent);}.btn-primary:hover:not(:disabled) {background: #7ad5ff;}.btn-secondary {background: var(--bg-elevated);color: var(--text-2);border-color: var(--border);}.btn-secondary:hover:not(:disabled) {border-color: rgba(255,255,255,0.15);color: var(--text-1);}.btn-danger {background: var(--red-dim);color: var(--red);border-color: rgba(255,94,126,0.3);}.btn-danger:hover:not(:disabled) {background: rgba(255,94,126,0.2);}.btn-ghost {background: none;color: var(--text-2);border-color: transparent;}.btn-ghost:hover:not(:disabled) {background: var(--bg-elevated);color: var(--text-1);}.btn-row {display: flex;gap: 8px;flex-wrap: wrap;align-items: center;}.btn-row-end {justify-content: flex-end;}.filter-bar {display: flex;gap: 10px;flex-wrap: wrap;}.filter-bar select, .filter-bar input {min-width: 140px;width: auto;flex: 1;}.table-wrap {overflow-x: auto;border-radius: var(--radius-lg);border: 1px solid var(--border);}table {width: 100%;border-collapse: collapse;}thead {background: var(--bg-elevated);}th {padding: 11px 14px;font-size: 11px;font-weight: 700;color: var(--text-3);text-transform: uppercase;letter-spacing: .07em;text-align: left;border-bottom: 1px solid var(--border);white-space: nowrap;}th.sortable {cursor: pointer;transition: color var(--transition);}th.sortable:hover {color: var(--text-1);}th.sort-asc .sort-icon::before {content: "\f0de";}th.sort-desc .sort-icon::before {content: "\f0dd";}.sort-icon {margin-left: 4px;font-size: 10px;opacity: 0.5;}td {padding: 12px 14px;border-bottom: 1px solid var(--border);font-size: 13.5px;color: var(--text-2);vertical-align: middle;}tr:last-child td {border-bottom: none;}tr:hover td {background: rgba(255,255,255,0.02);}.cell-paper-name {font-weight: 600;color: var(--text-1);font-size: 13.5px;}.cell-paper-sub {font-size: 12px;color: var(--text-3);margin-top: 2px;}.score-badge {display: inline-flex;align-items: center;padding: 2px 10px;border-radius: 99px;font-family: var(--font-mono);font-size: 12px;font-weight: 700;}.score-high {background: var(--green-dim);color: var(--green);}.score-mid {background: var(--amber-dim);color: var(--amber);}.score-low {background: var(--red-dim);color: var(--red);}.action-btns {display: flex;gap: 4px;}.action-btn {width: 30px;height: 30px;border-radius: var(--radius-sm);border: 1px solid var(--border);background: var(--bg-elevated);color: var(--text-3);cursor: pointer;font-size: 12px;display: flex;align-items: center;justify-content: center;transition: all var(--transition);}.action-btn:hover {color: var(--text-1);border-color: rgba(255,255,255,0.12);}.action-btn.danger:hover {color: var(--red);border-color: rgba(255,94,126,0.3);background: var(--red-dim);}.stats-bar {display: flex;align-items: center;gap: 16px;font-size: 13px;color: var(--text-3);padding: 4px 0;flex-wrap: wrap;}.stats-val {font-weight: 700;}.empty-state {text-align: center;padding: 60px 24px;color: var(--text-3);}.empty-state i {font-size: 40px;margin-bottom: 16px;opacity: 0.4;}.empty-state h3 {font-size: 16px;font-weight: 600;color: var(--text-2);margin-bottom: 6px;}.empty-state p {font-size: 13px;}.overlay {position: fixed;inset: 0;background: rgba(0,0,0,0.65);backdrop-filter: blur(4px);z-index: 100;display: flex;align-items: center;justify-content: center;padding: 20px;visibility: hidden;opacity: 0;transition: opacity 200ms ease, visibility 200ms ease;}.overlay.open {visibility: visible;opacity: 1;}.modal {background: var(--bg-card);border: 1px solid var(--border);border-radius: var(--radius-xl);width: 100%;max-width: 520px;max-height: 85vh;display: flex;flex-direction: column;transform: translateY(8px) scale(0.99);transition: transform 200ms ease;}.overlay.open .modal {transform: none;}.modal-lg {max-width: 680px;}.modal-head {display: flex;align-items: center;justify-content: space-between;padding: 20px 24px;border-bottom: 1px solid var(--border);flex-shrink: 0;}.modal-title {font-size: 16px;font-weight: 700;color: var(--text-1);}.modal-close {width: 28px;height: 28px;border-radius: var(--radius-sm);border: 1px solid var(--border);background: var(--bg-elevated);color: var(--text-3);cursor: pointer;font-size: 12px;display: flex;align-items: center;justify-content: center;transition: all var(--transition);}.modal-close:hover {color: var(--text-1);}.modal-body {padding: 24px;overflow-y: auto;flex: 1;}.modal-foot {padding: 16px 24px;border-top: 1px solid var(--border);display: flex;justify-content: flex-end;gap: 8px;flex-shrink: 0;flex-wrap: wrap;}.info-block {margin-bottom: 20px;}.info-block:last-child {margin-bottom: 0;}.info-label {font-size: 11px;font-weight: 700;color: var(--text-3);text-transform: uppercase;letter-spacing: .08em;margin-bottom: 6px;}.info-val {font-size: 13.5px;color: var(--text-1);}.info-val.big {font-family: var(--font-mono);font-size: 28px;font-weight: 700;}.wrong-list {list-style: none;display: flex;flex-direction: column;gap: 4px;}.wrong-list li {display: flex;align-items: flex-start;gap: 8px;padding: 6px 10px;background: var(--bg-elevated);border-radius: var(--radius-sm);font-size: 13px;color: var(--text-2);}.wrong-list li i {color: var(--red);font-size: 11px;margin-top: 2px;flex-shrink: 0;}.filter-grid {display: grid;grid-template-columns: 1fr 1fr;gap: 14px;}.filter-chip-row {display: flex;flex-wrap: wrap;gap: 6px;}.filter-chip {padding: 5px 12px;border-radius: 99px;border: 1px solid var(--border);background: var(--bg-elevated);color: var(--text-2);font-size: 12px;font-weight: 500;cursor: pointer;transition: all var(--transition);}.filter-chip:hover {border-color: rgba(255,255,255,0.12);color: var(--text-1);}.filter-chip.active {background: var(--accent-dim);border-color: var(--accent);color: var(--accent);}.passphrase-box {background: var(--bg-elevated);border: 1px solid var(--border);border-radius: var(--radius-sm);padding: 14px 16px;display: flex;align-items: center;gap: 12px;}.passphrase-text {font-family: var(--font-mono);font-size: 12.5px;color: var(--accent);flex: 1;word-break: break-all;line-height: 1.6;}.cloud-status {display: flex;align-items: center;gap: 10px;padding: 10px 14px;border-radius: var(--radius-sm);font-size: 13px;margin-top: 12px;}.cloud-status.info {background: var(--accent-dim);color: var(--accent);}.cloud-status.success {background: var(--green-dim);color: var(--green);}.cloud-status.error {background: var(--red-dim);color: var(--red);}.cloud-status.loading {background: var(--bg-elevated);color: var(--text-2);}.conflict-item {display: flex;align-items: center;justify-content: space-between;gap: 12px;padding: 12px 14px;background: var(--bg-elevated);border-radius: var(--radius-sm);border: 1px solid var(--border);margin-bottom: 8px;}.conflict-info {flex: 1;}.conflict-name {font-size: 13px;font-weight: 600;color: var(--text-1);margin-bottom: 3px;}.conflict-scores {font-size: 12px;color: var(--text-3);}.conflict-acts {display: flex;gap: 6px;flex-shrink: 0;}.toast {position: fixed;bottom: 24px;right: 24px;background: var(--bg-elevated);border: 1px solid var(--border);border-radius: var(--radius-sm);padding: 10px 16px;font-size: 13px;color: var(--text-1);z-index: 200;transform: translateY(16px);opacity: 0;transition: all 200ms ease;pointer-events: none;}.toast.show {transform: none;opacity: 1;}.launch-icon {width: 64px;height: 64px;background: var(--accent);border-radius: var(--radius-lg);display: flex;align-items: center;justify-content: center;font-size: 28px;color: var(--text-inv);margin: 0 auto 20px;}.launch-title {font-size: 22px;font-weight: 700;text-align: center;margin-bottom: 10px;}.launch-body {font-size: 14px;color: var(--text-2);text-align: center;line-height: 1.7;margin-bottom: 24px;}.light {--bg: #f4f6fb;--bg-card: #ffffff;--bg-elevated: #f0f2f7;--bg-input: #eef0f5;--border: rgba(0,0,0,0.08);--border-focus: rgba(0,115,230,0.5);--text-1: #111827;--text-2: #4b5563;--text-3: #9ca3af;--text-inv: #ffffff;--accent: #0073e6;--accent-dim: rgba(0,115,230,0.08);--accent-glow: rgba(0,115,230,0.15);--green: #0da570;--green-dim: rgba(13,165,112,0.1);--amber: #b45309;--amber-dim: rgba(180,83,9,0.08);--red: #dc2626;--red-dim: rgba(220,38,38,0.08);--purple: #7c3aed;--purple-dim: rgba(124,58,237,0.08);}@media (max-width: 768px) {.sidebar {position: fixed;left: 0;top: 0;bottom: 0;z-index: 50;transform: translateX(-100%);transition: transform 250ms ease;}.sidebar.open {transform: none;}.mobile-header {display: flex;align-items: center;justify-content: space-between;padding: 12px 16px;background: var(--bg-card);border-bottom: 1px solid var(--border);flex-shrink: 0;}.mobile-brand {font-family: var(--font-mono);font-size: 15px;font-weight: 700;}.hamburger {width: 32px;height: 32px;border: 1px solid var(--border);border-radius: var(--radius-sm);background: var(--bg-elevated);color: var(--text-2);cursor: pointer;display: flex;align-items: center;justify-content: center;font-size: 13px;}.main {padding: 16px;}.filter-grid {grid-template-columns: 1fr;}}@media (min-width: 769px) {.mobile-header {display: none;}}.sidebar-overlay {display: none;position: fixed;inset: 0;z-index: 49;background: rgba(0,0,0,0.5);}@media (max-width: 768px) {.sidebar-overlay.show {display: block;}}</style>
+</head>
+
+<body>
+<script>
+  console.warn = function() {}
+
+  const VERSION="3.0 Cloud BETA",CLOUD_API="https://aeztrack-api.vercel.app",CLOUD_KEY="aeztrack_cloud_passphrase",SUPABASE_URL="https://buyxfukghhiritecnmwk.supabase.co",SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1eXhmdWtnaGhpcml0ZWNubXdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1MDk5OTMsImV4cCI6MjA4OTA4NTk5M30.40kkz1vE-5XI3ksC5d4NIeOXeuiQsUAsbm24Sd2VBS8",variantGroups={standard:["1","2","3"],math:["2","4"],dual:["1","2"],english:["0","1","2"]},subjectVariantMap={Mathematics:"math",Physics:"standard",Chemistry:"standard",Biology:"standard","Computer Science":"dual",English:"english",Accounts:"dual"},availabilityConfig={Mathematics:{code:"0580",yearRange:[2006,2025],excludeM:[],excludeS:[],excludeW:[],papers:["Paper 2","Paper 4"]},Physics:{code:"0625",yearRange:[2006,2025],excludeM:[],excludeS:[],excludeW:[],papers:["Paper 2","Paper 4","Paper 6"]},Chemistry:{code:"0620",yearRange:[2006,2025],excludeM:[],excludeS:[],excludeW:[],papers:["Paper 2","Paper 4","Paper 6"]},Biology:{code:"0610",yearRange:[2006,2025],excludeM:[],excludeS:[],excludeW:[],papers:["Paper 2","Paper 4","Paper 6"]},"Computer Science":{code:"0478",yearRange:[2015,2025],excludeM:[],excludeS:[],excludeW:[],papers:["Paper 1","Paper 2"]},English:{code:"0500",yearRange:[2006,2025],excludeM:[],excludeS:[],excludeW:[],papers:["Paper 1","Paper 2"]},Accounts:{code:"0452",yearRange:[2006,2025],excludeM:[],excludeS:[],excludeW:[],papers:["Paper 1","Paper 2"]}},subjectPapers={Mathematics:["Paper 2","Paper 4"],Physics:["Paper 2","Paper 4","Paper 6"],Chemistry:["Paper 2","Paper 4","Paper 6"],Biology:["Paper 2","Paper 4","Paper 6"],"Computer Science":["Paper 1","Paper 2"],English:["Paper 1","Paper 2"],Accounts:["Paper 1","Paper 2"]},subjectCodes={Mathematics:"0580",Physics:"0625",Chemistry:"0620",Biology:"0610","Computer Science":"0478",English:"0500",Accounts:"0452"},paperCodes={"Paper 1":"1","Paper 2":"2","Paper 3":"3","Paper 4":"4","Paper 6":"6"};let db=[],nextId=1,urlCache={},realtimeChannel=null,lastSyncHash=null,sortCol=null,sortDir=1,ppFilters={subject:"",paper:"",session:"",yearRange:"2021-2025"},currentDocType="qp",currentPapersList=[];function saveToStorage(){localStorage.setItem("pastPaperDB",JSON.stringify(db)),localStorage.setItem("pastPaperNextId",nextId),backgroundSync()}function loadFromStorage(){const e=localStorage.getItem("pastPaperDB"),t=localStorage.getItem("pastPaperNextId");e&&(db=JSON.parse(e),nextId=t?parseInt(t):1)}function loadUrlCache(){try{urlCache=JSON.parse(localStorage.getItem("aeztrack_url_cache")||"{}")}catch{urlCache={}}}function saveUrlCache(){localStorage.setItem("aeztrack_url_cache",JSON.stringify(urlCache))}function getCachedAvail(e){const t=urlCache[e];return t?Date.now()-t.at>2592e6?(delete urlCache[e],saveUrlCache(),null):t.ok:null}function setCachedAvail(e,t){urlCache[e]={ok:t,at:Date.now()},saveUrlCache()}function loadTheme(){"light"===localStorage.getItem("aeztrack_theme")&&applyTheme("light")}function toggleTheme(){applyTheme(document.body.classList.contains("light")?"dark":"light")}function applyTheme(e){document.body.classList.toggle("light","light"===e),localStorage.setItem("aeztrack_theme",e);const t=document.getElementById("theme-icon");t&&(t.className="light"===e?"fas fa-moon":"fas fa-sun")}function setView(e,t){document.querySelectorAll(".view").forEach((e=>e.classList.remove("active"))),document.querySelectorAll(".nav-item").forEach((e=>e.classList.remove("active"))),document.getElementById(e).classList.add("active"),t&&t.classList.add("active"),closeMobileSidebar(),"performance"===e&&renderPerformance(),"history"===e&&(populateHistoryFilters(),renderHistory()),"pastpapers"===e&&renderPastPapers()}function openMobileSidebar(){document.getElementById("sidebar").classList.add("open"),document.getElementById("sidebar-overlay").classList.add("show")}function closeMobileSidebar(){document.getElementById("sidebar").classList.remove("open"),document.getElementById("sidebar-overlay").classList.remove("show")}function openModal(e){const t=document.getElementById(e);t&&t.classList.add("open")}function closeModal(e){const t=e?document.getElementById(e):document.querySelector(".overlay.open:not(#launch-modal)");t&&t.classList.remove("open")}function showAlert(e,t,n=null,a=!1){document.getElementById("alert-title").textContent=e,document.getElementById("alert-body").innerHTML=t;const s=document.getElementById("alert-foot");n?(s.innerHTML=`\n      <button class="btn btn-secondary" onclick="closeModal('alert-overlay')">Cancel</button>\n      <button class="btn btn-danger" id="alert-confirm">${a?'<i class="fas fa-trash"></i> ':""} Confirm</button>`,document.getElementById("alert-confirm").onclick=()=>{n(),closeModal("alert-overlay")}):s.innerHTML='<button class="btn btn-primary" onclick="closeModal(\'alert-overlay\')">OK</button>',openModal("alert-overlay")}function loadPaperOptions(e){const t=document.getElementById("in-sub").value,n=document.getElementById("in-type");n.innerHTML=(subjectPapers[t]||[]).map((e=>`<option>${e}</option>`)).join(""),e&&(n.value=e)}function calcPerc(){const e=parseInt(document.getElementById("in-got").value),t=parseInt(document.getElementById("in-total").value),n=document.getElementById("perc-disp");if(!isNaN(e)&&!isNaN(t)&&t>0){const a=Math.min(Math.round(e/t*100),100);n.textContent=a+"%",n.style.color=scoreColor(a)}else n.textContent="--",n.style.color="var(--text-3)"}function clearForm(){document.getElementById("edit-id").value="-1",document.getElementById("in-sub").value="",document.getElementById("in-type").innerHTML='<option value="">Select subject first</option>',document.getElementById("in-var").value="",document.getElementById("in-sess").value="May/June",document.getElementById("in-year").value="2011",document.getElementById("in-got").value="",document.getElementById("in-total").value="",document.getElementById("perc-disp").textContent="--",document.getElementById("perc-disp").style.color="var(--text-3)",document.getElementById("in-wrong").value="",document.getElementById("in-notes").value="",document.getElementById("in-time").value="",document.getElementById("allow-dup").checked=!1,hideBanner()}function showBanner(e){const t=document.getElementById("edit-banner");t.dataset.editId=e,t.classList.add("visible")}function hideBanner(){document.getElementById("edit-banner").classList.remove("visible")}function cancelEdit(){clearForm()}function scoreColor(e){return e<50?"var(--red)":e<80?"var(--amber)":"var(--green)"}function scoreCls(e){return e<50?"score-low":e<80?"score-mid":"score-high"}function perfCls(e){return e<50?"low":e<80?"mid":"high"}function isDuplicate(e,t){return e.sub===t.sub&&e.type===t.type&&e.var===t.var&&e.sess===t.sess&&e.year===t.year}function getVariants(e){return variantGroups[subjectVariantMap[e]||"standard"]}function subjectUrlName(e){return{Mathematics:"mathematics",Physics:"physics",Chemistry:"chemistry",Biology:"biology","Computer Science":"computer-science",English:"english",Accounts:"accounts"}[e]||e.toLowerCase().replace(" ","-")}function saveEntry(){const e=document.getElementById("in-sub").value.trim(),t=document.getElementById("in-type").value.trim(),n=document.getElementById("in-var").value.trim(),a=document.getElementById("in-sess").value,s=parseInt(document.getElementById("in-year").value);let o=parseInt(document.getElementById("in-got").value),r=parseInt(document.getElementById("in-total").value);const l=document.getElementById("in-wrong").value.trim(),i=document.getElementById("in-notes").value.trim();let c=document.getElementById("in-time").value.trim();const d=document.getElementById("allow-dup").checked,p=document.getElementById("edit-id").value;if(!e||!t||!n||isNaN(o)||isNaN(r)||o<0||r<=0)return void showAlert("Missing Info","Fill in all required fields before saving.");if(2!==n.length)return void showAlert("Invalid Variant","Variant must be exactly 2 characters (e.g. 11, 21).");const u=Math.max(1990,Math.min(2030,s));o>r&&(o=r),c||(c="Not recorded");const m={sub:e,type:t,var:n,sess:a,year:u};if(!d&&"-1"===p&&db.some((e=>isDuplicate(e,m))))return void showAlert("Duplicate Entry",'This paper was already logged. Enable "Allow duplicates" to add again.');const y=Math.round(o/r*100);if("-1"===p)db.unshift({id:nextId++,sub:e,type:t,var:n,sess:a,year:u,got:o,total:r,perc:y,wrong:l,notes:i,time:c});else{const s=db.findIndex((e=>e.id==p));-1!==s&&(db[s]={id:parseInt(p),sub:e,type:t,var:n,sess:a,year:u,got:o,total:r,perc:y,wrong:l,notes:i,time:c})}saveToStorage(),clearForm(),showToast("-1"===p?"Paper logged ✓":"Entry updated ✓"),renderPerformance(),document.getElementById("view-history").classList.contains("active")&&renderHistory(),document.getElementById("view-pastpapers").classList.contains("active")&&renderPastPapers()}document.addEventListener("DOMContentLoaded",(()=>{loadFromStorage(),loadUrlCache(),loadTheme(),localStorage.getItem("aeztrack_launched")||openModal("launch-modal"),renderPerformance(),silentPullOnLoad(),initRealtime(),backgroundSync()})),document.addEventListener("keydown",(e=>{"Escape"===e.key&&closeModal(),(e.ctrlKey||e.metaKey)&&"s"===e.key&&document.getElementById("view-log").classList.contains("active")&&(e.preventDefault(),saveEntry())}));let histFilters={sub:"",paper:"",minP:0,maxP:100};function populateHistoryFilters(){const e=document.getElementById("hist-sub").value,t=document.getElementById("hist-paper");t.innerHTML='<option value="">All Papers</option>',e&&subjectPapers[e]&&subjectPapers[e].forEach((e=>{t.innerHTML+=`<option>${e}</option>`}))}function renderHistory(){const e=document.getElementById("hist-sub").value.toLowerCase(),t=document.getElementById("hist-paper").value.toLowerCase(),n=parseFloat(document.getElementById("hist-min").value)||0,a=parseFloat(document.getElementById("hist-max").value)||100;let s=db.filter((s=>(!e||s.sub.toLowerCase()===e)&&(!t||s.type.toLowerCase()===t)&&s.perc>=n&&s.perc<=a));sortCol&&(s=[...s].sort(((e,t)=>{let n=e[sortCol],a=t[sortCol];return"string"==typeof n&&(n=n.toLowerCase(),a=a.toLowerCase()),n<a?-sortDir:n>a?sortDir:0})));const o=document.getElementById("hist-tbody");s.length?o.innerHTML=s.map((e=>`\n      <tr>\n        <td>\n          <div class="cell-paper-name">${e.type}</div>\n          <div class="cell-paper-sub">${e.sub} · Var ${e.var}</div>\n        </td>\n        <td style="font-family:var(--font-mono);font-size:12.5px;color:var(--text-2)">${e.sess} ${e.year}</td>\n        <td><span class="score-badge ${scoreCls(e.perc)}">${e.got}/${e.total} (${e.perc}%)</span></td>\n        <td style="color:var(--text-3);font-size:12.5px">${e.time}</td>\n        <td>\n          <div class="action-btns">\n            <button class="action-btn" onclick="viewEntry(${e.id})" title="View"><i class="fas fa-eye"></i></button>\n            <button class="action-btn" onclick="editEntry(${e.id})" title="Edit"><i class="fas fa-pen"></i></button>\n            <button class="action-btn danger" onclick="deleteEntry(${e.id})" title="Delete"><i class="fas fa-trash"></i></button>\n          </div>\n        </td>\n      </tr>`)).join(""):o.innerHTML='<tr><td colspan="5"><div class="empty-state">\n      <i class="fas fa-inbox"></i><h3>No papers found</h3><p>Try adjusting your filters.</p>\n    </div></td></tr>';const r=s.length?Math.round(s.reduce(((e,t)=>e+t.perc),0)/s.length):0;document.getElementById("hist-stats").innerHTML=`<span>${s.length} paper${1!==s.length?"s":""}</span>\n     ${s.length?`<span>·</span><span>Avg <span class="stats-val" style="color:${scoreColor(r)}">${r}%</span></span>`:""}`}function sortHistory(e){sortCol===e?sortDir*=-1:(sortCol=e,sortDir=1),document.querySelectorAll("th[data-sort]").forEach((t=>{t.classList.remove("sort-asc","sort-desc"),t.dataset.sort===e&&t.classList.add(1===sortDir?"sort-asc":"sort-desc")})),renderHistory()}function viewEntry(e){const t=db.find((t=>t.id===e));if(!t)return;const n=t.wrong.split("\n").filter((e=>e.trim())).map((e=>`<li><i class="fas fa-times-circle"></i> ${e}</li>`)).join("")||'<li style="color:var(--text-3);font-style:italic">None recorded</li>';document.getElementById("detail-title").textContent=`${t.sub} · ${t.type}`,document.getElementById("detail-body").innerHTML=`\n    <div class="info-block">\n      <div class="info-label">Paper Details</div>\n      <div class="info-val">Variant ${t.var} · ${t.sess} ${t.year}</div>\n    </div>\n    <div class="info-block">\n      <div class="info-label">Score</div>\n      <div class="info-val big" style="color:${scoreColor(t.perc)}">${t.got}/${t.total} <span style="font-size:18px">(${t.perc}%)</span></div>\n    </div>\n    <div class="info-block">\n      <div class="info-label">Time Taken</div>\n      <div class="info-val">${t.time}</div>\n    </div>\n    <div class="info-block">\n      <div class="info-label">Wrong Questions</div>\n      <ul class="wrong-list">${n}</ul>\n    </div>\n    ${t.notes?`<div class="info-block">\n      <div class="info-label">Notes</div>\n      <div class="info-val" style="color:var(--text-2);line-height:1.6">${t.notes}</div>\n    </div>`:""}`,document.getElementById("detail-foot").innerHTML=`\n    <button class="btn btn-secondary" onclick="closeModal('detail-overlay')">Close</button>\n    <button class="btn btn-ghost" onclick="editEntry(${t.id});closeModal('detail-overlay')"><i class="fas fa-pen"></i> Edit</button>\n    <button class="btn btn-danger" onclick="deleteEntry(${t.id});closeModal('detail-overlay')"><i class="fas fa-trash"></i> Delete</button>`,openModal("detail-overlay")}function editEntry(e){const t=db.find((t=>t.id===e));t&&(document.getElementById("edit-id").value=t.id,document.getElementById("in-sub").value=t.sub,loadPaperOptions(t.type),document.getElementById("in-var").value=t.var,document.getElementById("in-sess").value=t.sess,document.getElementById("in-year").value=t.year,document.getElementById("in-got").value=t.got,document.getElementById("in-total").value=t.total,calcPerc(),document.getElementById("in-wrong").value=t.wrong,document.getElementById("in-notes").value=t.notes,document.getElementById("in-time").value=t.time,showBanner(t.id),setView("view-log",document.querySelector('.nav-item[data-view="view-log"]')))}function deleteEntry(e){const t=db.find((t=>t.id===e));t&&showAlert("Delete Entry",`Delete <strong>${t.sub} ${t.type} (Var ${t.var})</strong>? This cannot be undone.`,(()=>{db=db.filter((t=>t.id!==e)),saveToStorage(),renderHistory(),renderPerformance()}),!0)}function computeStreak(){return db.length?db.length:0}function renderPerformance(){const e=document.getElementById("perf-grid");if(!db.length)return void(e.innerHTML='<div style="grid-column:1/-1"><div class="empty-state">\n      <i class="fas fa-chart-bar"></i>\n      <h3>No data yet</h3>\n      <p>Start logging past papers to see your performance.</p>\n    </div></div>');const t=[...new Set(db.map((e=>e.sub)))];let n="";const a=Math.round(db.reduce(((e,t)=>e+t.perc),0)/db.length),s=db.reduce(((e,t)=>t.perc>(e?.perc||0)?t:e),null);n+=`\n    <div class="card card-sm" style="grid-column:1/-1;display:flex;gap:32px;flex-wrap:wrap;align-items:center">\n      <div>\n        <div class="info-label">Overall Average</div>\n        <div style="font-family:var(--font-mono);font-size:28px;font-weight:700;color:${scoreColor(a)}">${a}%</div>\n      </div>\n      <div>\n        <div class="info-label">Total Papers</div>\n        <div style="font-family:var(--font-mono);font-size:28px;font-weight:700;color:var(--text-1)">${db.length}</div>\n      </div>\n      ${s?`<div>\n        <div class="info-label">Best Paper</div>\n        <div style="font-size:14px;font-weight:600;color:var(--green)">${s.sub} ${s.type} · ${s.perc}%</div>\n        <div style="font-size:12px;color:var(--text-3)">${s.sess} ${s.year}</div>\n      </div>`:""}\n    </div>`,n+=t.map(((e,t)=>{const n=db.filter((t=>t.sub===e)),a=Math.round(n.reduce(((e,t)=>e+t.perc),0)/n.length),s=n.slice(0,8).reverse();let o="";if(s.length>1){const e=120,t=36,n=s.map(((n,a)=>{const o=a/(s.length-1)*e,r=t-n.perc/100*t;return`${o.toFixed(1)},${r.toFixed(1)}`})).join(" ");o=`<svg viewBox="0 0 ${e} ${t}" style="width:100%;height:36px;margin-top:12px" preserveAspectRatio="none">\n        <polyline points="${n}" fill="none" stroke="${scoreColor(a)}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/>\n        ${s.map(((n,o)=>`<circle cx="${(o/(s.length-1)*e).toFixed(1)}" cy="${(t-n.perc/100*t).toFixed(1)}" r="2.5" fill="${scoreColor(a)}"/>`)).join("")}\n      </svg>`}return`<div class="perf-card ${perfCls(a)}" style="animation-delay:${.05*t}s">\n      <div class="perf-subject">${e}</div>\n      <div class="perf-score">${a}%</div>\n      <div class="perf-meta">${n.length} paper${1!==n.length?"s":""} logged</div>\n      ${o}\n    </div>`})).join("");const o=db.flatMap((e=>{const t=e.sub;return e.wrong.split("\n").filter((e=>e.trim())).map((n=>({q:n,sub:t,type:e.type,sess:e.sess,year:e.year})))}));o.length&&(n+=`<div class="card" style="grid-column:1/-1">\n      <div style="font-weight:700;margin-bottom:16px;font-size:14px">\n        <i class="fas fa-crosshairs" style="color:var(--red);margin-right:8px"></i>\n        Wrong Questions Review <span style="font-size:12px;font-weight:400;color:var(--text-3)">(${o.length} total)</span>\n      </div>\n      <div style="display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto">\n        ${o.slice(0,30).map((e=>`\n          <div class="wrong-review-item">\n            <div class="wrong-review-label">${e.sub} · ${e.type} · ${e.sess} ${e.year}</div>\n            ${e.q}\n          </div>`)).join("")}\n        ${o.length>30?`<div style="font-size:12px;color:var(--text-3);text-align:center;padding:8px">\n          +${o.length-30} more — review all from history\n        </div>`:""}\n      </div>\n    </div>`),e.innerHTML=n}function renderPastPapers(){const{subject:e,paper:t,session:n,yearRange:a}=ppFilters,s=document.getElementById("pp-list");if(!e)return void(s.innerHTML='<div class="empty-state">\n      <i class="fas fa-book-open"></i><h3>Select a Subject</h3>\n      <p>Choose a subject to browse available past papers.</p></div>');const o=availabilityConfig[e],r=t?[t]:o?.papers||subjectPapers[e]||[];let l=[];if("all"===a)for(let e=o.yearRange[1];e>=o.yearRange[0];e--)l.push(e);else{const[e,t]=a.split("-").map(Number);for(let n=t;n>=e;n--)l.push(n)}const i={},c={m:"Feb/March",s:"May/June",w:"Oct/Nov"};l.forEach((t=>{const a=t.toString().slice(-2);["s","w","m"].forEach((s=>{if(n&&n!==s)return;const o=c[s],l=`${s}:${o}`,d=checkAvail(e,t,s);let p=[];"er"===currentDocType||"gt"===currentDocType?p.push((n=>{const r=`https://bestexamhelp.com/exam/cambridge-igcse/${subjectUrlName(e)}-${subjectCodes[e]}/${t}/${subjectCodes[e]}_${s}${a}_${n}.pdf`;return{year:t,sess:s,sessLabel:o,paper:null,subject:e,url:r,display:"er"===n?"Examiner Report":"Grade Threshold",subjAvail:d,cachedStatus:getCachedAvail(r)}})(currentDocType)):r.forEach((n=>{const r=paperCodes[n]||n.replace("Paper ","");getVariants(e).forEach((l=>p.push(((n,r,l)=>{const i=`https://bestexamhelp.com/exam/cambridge-igcse/${subjectUrlName(e)}-${subjectCodes[e]}/${t}/${subjectCodes[e]}_${s}${a}_${currentDocType}_${r}${l}.pdf`;return{year:t,sess:s,sessLabel:o,paper:n,paperCode:r,variant:l,subject:e,url:i,display:`${n} (Var ${l})`,subjAvail:d,cachedStatus:getCachedAvail(i)}})(n,r,l))))})),p.forEach((e=>{i[t]||(i[t]={}),i[t][l]||(i[t][l]=[]),i[t][l].push(e),currentPapersList.push(e)}))}))})),currentPapersList=[];let d=0;const p=Object.keys(i).sort(((e,t)=>t-e));if(!p.length)return void(s.innerHTML='<div class="empty-state"><i class="fas fa-search"></i><h3>No Papers</h3><p>Adjust your filters.</p></div>');s.innerHTML=p.map((e=>{const t=Object.keys(i[e]),n=t.map((t=>{const[,n]=t.split(":");return`<div class="session-label">${n}</div>${i[e][t].map((e=>{const t=d++;currentPapersList[t]=e;const n=findLogged(e),a=!!n,s=!1===e.cachedStatus||!e.subjAvail;let o="";s?o='<span class="badge badge-404"><i class="fas fa-times-circle"></i> 404</span>':a?o=`<span class="badge badge-done"><i class="fas fa-check-double"></i> Done ${n.perc}%</span>`:!0===e.cachedStatus&&(o='<span class="badge badge-verified"><i class="fas fa-check"></i> Verified</span>');const r="er"!==currentDocType&&"gt"!==currentDocType||!a?"":'<span class="badge badge-done"><i class="fas fa-check-double"></i> Done</span>';return`<div class="paper-item ${s?"not-found":""} ${a?"logged":""}" id="ppi-${t}">\n          <div class="paper-name">${e.display} ${o}${r}</div>\n          <div class="paper-actions">\n            ${s?'<button class="paper-btn" disabled><i class="fas fa-ban"></i> Unavailable</button>':`${e.paper?`<button class="paper-btn primary" onclick="quickLog(${t})" title="Pre-fill log"><i class="fas fa-plus"></i> Log</button>`:""}\n                 <button class="paper-btn" onclick="openPaper(${t})"><i class="fas fa-external-link-alt"></i> Open</button>`}\n          </div>\n        </div>`})).join("")}`})).join("");return`<div class="year-group">\n      <div class="year-header" onclick="toggleYear(this)">\n        <span class="year-num">${e}</span>\n        <span style="color:var(--text-3);font-size:12px;font-weight:400">${t.length} session${1!==t.length?"s":""}</span>\n        <i class="fas fa-chevron-right year-caret"></i>\n      </div>\n      <div class="session-group" style="display:none">${n}</div>\n    </div>`})).join("");const u=s.querySelector(".year-header");u&&toggleYear(u)}function toggleYear(e){e.classList.toggle("open");const t=e.nextElementSibling;t.style.display="none"===t.style.display?"block":"none"}function checkAvail(e,t,n){const a=availabilityConfig[e];if(!a)return!1;const[s,o]=a.yearRange;if(t<s||t>o)return!1;const r="exclude"+n.toUpperCase();return!a[r]?.includes(t)}function findLogged(e){if(!e.paper)return db.find((t=>t.sub===e.subject&&t.sess===e.sessLabel&&t.year===e.year))||null;const t=(e.paperCode||"")+(e.variant||"");return db.find((n=>n.sub===e.subject&&n.type===e.paper&&n.var===t&&n.sess===e.sessLabel&&n.year===e.year))||null}function openPaper(e){const t=currentPapersList[e];t&&(!1!==t.cachedStatus?(window.open(t.url,"_blank"),t.cachedStatus||(currentPapersList[e].cachedStatus=!0,setCachedAvail(t.url,!0))):show404Modal(t))}function quickLog(e){const t=currentPapersList[e];t&&t.paper&&(document.getElementById("in-sub").value=t.subject,loadPaperOptions(t.paper),document.getElementById("in-var").value=(t.paperCode||"")+(t.variant||""),document.getElementById("in-sess").value=t.sessLabel,document.getElementById("in-year").value=t.year,document.getElementById("edit-id").value="-1",hideBanner(),setView("view-log",document.querySelector('.nav-item[data-view="view-log"]')))}function show404Modal(e){document.getElementById("alert-title").textContent="Paper Not Found",document.getElementById("alert-body").innerHTML=`\n    <div style="margin-bottom:16px;padding:12px 14px;background:var(--red-dim);border-radius:var(--radius-sm);color:var(--red);font-size:13px">\n      <i class="fas fa-exclamation-triangle" style="margin-right:8px"></i>\n      This paper returned a 404 and may not be available.\n    </div>\n    <div class="info-block">\n      <div class="info-label">Paper</div>\n      <div class="info-val">${e.subject} ${e.paper||""} ${e.variant?"(Var "+e.variant+")":""} · ${e.sessLabel} ${e.year}</div>\n    </div>\n    <div class="info-block">\n      <div class="info-label">URL</div>\n      <div style="font-size:11.5px;font-family:var(--font-mono);color:var(--text-3);word-break:break-all">${e.url}</div>\n    </div>`,document.getElementById("alert-foot").innerHTML=`\n    <button class="btn btn-secondary" onclick="closeModal('alert-overlay')">Close</button>\n    <button class="btn btn-ghost" onclick="window.open('${e.url}','_blank')"><i class="fas fa-external-link-alt"></i> Try Anyway</button>`,openModal("alert-overlay")}function setDocType(e,t){currentDocType=e,document.querySelectorAll(".doc-tab").forEach((e=>e.classList.remove("active"))),t.classList.add("active"),currentPapersList=[],renderPastPapers()}function openFilterModal(){document.getElementById("fm-sub").value=ppFilters.subject;const e=document.getElementById("fm-paper");e.innerHTML='<option value="">All Papers</option>',ppFilters.subject&&subjectPapers[ppFilters.subject]&&subjectPapers[ppFilters.subject].forEach((t=>{e.innerHTML+=`<option>${t}</option>`})),e.value=ppFilters.paper,document.getElementById("fm-session").value=ppFilters.session,document.querySelectorAll(".yr-chip").forEach((e=>{e.classList.toggle("active",e.dataset.yr===ppFilters.yearRange)})),openModal("filter-overlay")}function onFilterSubChange(){const e=document.getElementById("fm-sub").value,t=document.getElementById("fm-paper");t.innerHTML='<option value="">All Papers</option>',e&&subjectPapers[e]&&subjectPapers[e].forEach((e=>{t.innerHTML+=`<option>${e}</option>`}))}function applyFilters(){ppFilters.subject=document.getElementById("fm-sub").value,ppFilters.paper=document.getElementById("fm-paper").value,ppFilters.session=document.getElementById("fm-session").value;const e=document.querySelector(".yr-chip.active");ppFilters.yearRange=e?e.dataset.yr:"2021-2025";const t=document.getElementById("filter-btn"),n=ppFilters.subject||ppFilters.paper||ppFilters.session||"2021-2025"!==ppFilters.yearRange;t.classList.toggle("has-filters",n),t.innerHTML='<i class="fas fa-sliders-h"></i> Filters'+(n?" ✦":""),currentPapersList=[],closeModal("filter-overlay"),renderPastPapers()}function resetFilters(){ppFilters={subject:"",paper:"",session:"",yearRange:"2021-2025"},document.getElementById("fm-sub").value="",document.getElementById("fm-paper").innerHTML='<option value="">All Papers</option>',document.getElementById("fm-session").value="",document.querySelectorAll(".yr-chip").forEach((e=>e.classList.toggle("active","2021-2025"===e.dataset.yr))),document.getElementById("filter-btn").classList.remove("has-filters"),document.getElementById("filter-btn").innerHTML='<i class="fas fa-sliders-h"></i> Filters',currentPapersList=[],closeModal("filter-overlay"),renderPastPapers()}function exportDB(){if(!db.length)return void showAlert("Nothing to Export","Log some papers first.");const e=CryptoJS.AES.encrypt(JSON.stringify(db),"freeUser").toString(),t=document.createElement("a");t.href=URL.createObjectURL(new Blob([e],{type:"application/octet-stream"})),t.download=`aeztrack-${(new Date).toISOString().split("T")[0]}.aez`,document.body.appendChild(t),t.click(),document.body.removeChild(t),URL.revokeObjectURL(t.href)}function importDB(e){const t=e.target.files[0];if(!t)return;const n=new FileReader;n.onload=function(e){try{const t=CryptoJS.AES.decrypt(e.target.result,"freeUser").toString(CryptoJS.enc.Utf8),n=JSON.parse(t);if(!Array.isArray(n))throw new Error;const a=[],s=[];n.forEach((e=>{const t=db.findIndex((t=>isDuplicate(t,e)));-1!==t?a.push({imported:e,existing:db[t]}):s.push(e)})),a.length?showConflictModal(a,s):finalizeImport(s,0)}catch{showAlert("Import Failed","Invalid .aez file or wrong password.")}},n.readAsText(t),e.target.value=""}function showConflictModal(e,t){window._pendingConflicts=e,window._pendingNew=t;document.getElementById("conflict-body").innerHTML=e.map(((e,t)=>`\n    <div class="conflict-item" id="ci-${t}">\n      <div class="conflict-info">\n        <div class="conflict-name">${e.imported.sub} ${e.imported.type} (${e.imported.var}) · ${e.imported.year}</div>\n        <div class="conflict-scores">Existing: ${e.existing.perc}% · Import: ${e.imported.perc}%</div>\n      </div>\n      <div class="conflict-acts">\n        <button class="btn btn-secondary" style="padding:5px 10px;font-size:12px" onclick="resolveOne(${t},'keep')">Keep</button>\n        <button class="btn btn-primary"   style="padding:5px 10px;font-size:12px" onclick="resolveOne(${t},'replace')">Import</button>\n      </div>\n    </div>`)).join(""),openModal("conflict-overlay")}function resolveOne(e,t){if(window._pendingConflicts[e].resolved=!0,window._pendingConflicts[e].decision=t,"replace"===t){const t=window._pendingConflicts[e],n=db.findIndex((e=>e.id===t.existing.id));-1!==n&&(db[n]={...t.imported,id:t.existing.id})}document.getElementById(`ci-${e}`).innerHTML=`<div style="padding:8px;color:${"replace"===t?"var(--green)":"var(--text-3)"};font-size:12px;font-weight:600;width:100%;text-align:center">\n    <i class="fas fa-${"replace"===t?"check":"lock"}"></i> ${"replace"===t?"Will be replaced":"Keeping existing"}\n  </div>`,window._pendingConflicts.every((e=>e.resolved))&&setTimeout((()=>{finalizeImport(window._pendingNew,window._pendingConflicts.filter((e=>"replace"===e.decision)).length),closeModal("conflict-overlay")}),400)}function resolveAll(e){window._pendingConflicts.forEach(((t,n)=>{t.resolved||resolveOne(n,e)}))}function finalizeImport(e,t){let n=0;e.forEach((e=>{const t=db.some((t=>t.id===e.id))?{...e,id:nextId++}:e;db.push(t),n++})),saveToStorage(),renderPerformance(),renderHistory(),showToast(`Import done: ${n} added, ${t} replaced`),window._pendingConflicts=window._pendingNew=null}async function backgroundSync(){const e=localStorage.getItem(CLOUD_KEY);if(e){setSyncState("syncing");try{const t=await fetch(`${CLOUD_API}/api/upload`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:db,passphrase:e})}),n=await t.json();if(!t.ok)return void setSyncState("error");lastSyncHash=CryptoJS.SHA256(JSON.stringify(db)).toString(),setSyncState("synced"),updateSyncTime(n.updated_at)}catch(e){console.warn("[AezTrack] Sync error:",e.message),setSyncState("error")}}}async function silentPullOnLoad(){const e=localStorage.getItem(CLOUD_KEY);if(e)try{const t=await fetch(`${CLOUD_API}/api/download`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({passphrase:e})});if(!t.ok)return;const n=await t.json();n.data&&Array.isArray(n.data)&&n.data.length>db.length&&(db=n.data,nextId=db.length?Math.max(...db.map((e=>e.id)))+1:1,localStorage.setItem("pastPaperDB",JSON.stringify(db)),localStorage.setItem("pastPaperNextId",nextId),renderPerformance(),document.getElementById("view-history").classList.contains("active")&&renderHistory()),updateSyncTime(n.updated_at),setSyncState("synced")}catch{}}function initRealtime(){const e=localStorage.getItem(CLOUD_KEY);if(e&&SUPABASE_ANON_KEY&&"YOUR_ANON_KEY_HERE"!==SUPABASE_ANON_KEY){realtimeChannel&&(realtimeChannel.unsubscribe(),realtimeChannel=null);try{const t=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY),n=CryptoJS.SHA256(e.toLowerCase().trim()).toString();realtimeChannel=t.channel("aeztrack-saves").on("postgres_changes",{event:"UPDATE",schema:"public",table:"saves",filter:`passphrase_hash=eq.${n}`},handleRealtimeUpdate).subscribe()}catch(e){console.warn("[RT] Init failed:",e.message)}}}function handleRealtimeUpdate(e){const t=e.new?.data;if(!Array.isArray(t))return;CryptoJS.SHA256(JSON.stringify(t)).toString()!==lastSyncHash&&(db=t,nextId=db.length?Math.max(...db.map((e=>e.id)))+1:1,localStorage.setItem("pastPaperDB",JSON.stringify(db)),localStorage.setItem("pastPaperNextId",nextId),renderPerformance(),document.getElementById("view-history").classList.contains("active")&&renderHistory(),document.getElementById("view-pastpapers").classList.contains("active")&&renderPastPapers(),setSyncState("synced"),updateSyncTime(),showToast("↑ Synced from another device"))}function setSyncState(e){const t=document.getElementById("sync-dot"),n=document.getElementById("sync-label");t&&(t.className=`sync-dot ${e}`,n.textContent={syncing:"Syncing…",synced:"Synced",error:"Sync error",idle:"Cloud sync"}[e]||"Cloud sync")}function updateSyncTime(e){const t=document.getElementById("sync-time");if(!t)return;const n=e?new Date(e):new Date;t.textContent="Last synced "+n.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),t.style.display="block"}function openCloudModal(){const e=localStorage.getItem(CLOUD_KEY);clearCloudStatus(),e?(document.getElementById("cloud-stored").style.display="block",document.getElementById("cloud-new").style.display="none",document.getElementById("cloud-pp-show").textContent=e,document.getElementById("cloud-foot").innerHTML=`\n      <button class="btn btn-secondary" onclick="closeModal('cloud-overlay')">Close</button>\n      <button class="btn btn-secondary" onclick="cloudLoad('${e}')"><i class="fas fa-cloud-download-alt"></i> Load</button>\n      <button class="btn btn-primary"   onclick="cloudUpload()"><i class="fas fa-cloud-upload-alt"></i> Save Now</button>`):(document.getElementById("cloud-stored").style.display="none",document.getElementById("cloud-new").style.display="block",document.getElementById("cloud-foot").innerHTML='\n      <button class="btn btn-secondary" onclick="closeModal(\'cloud-overlay\')">Cancel</button>'),openModal("cloud-overlay")}function setCloudStatus(e,t){const n=document.getElementById("cloud-status");n.className=`cloud-status ${t}`;n.innerHTML=`<i class="fas ${{info:"fa-info-circle",success:"fa-check-circle",error:"fa-exclamation-circle",loading:"fa-circle-notch fa-spin"}[t]||"fa-info-circle"}"></i> ${e}`,n.style.display="flex"}function clearCloudStatus(){const e=document.getElementById("cloud-status");e&&(e.style.display="none",e.innerHTML="")}function disableCloudBtns(e){document.querySelectorAll("#cloud-overlay .btn").forEach((t=>t.disabled=e))}async function cloudUpload(){if(!db.length)return void setCloudStatus("Nothing to upload — log some papers first.","error");const e=localStorage.getItem(CLOUD_KEY);disableCloudBtns(!0),setCloudStatus("Uploading…","loading");try{const t=e?{data:db,passphrase:e}:{data:db},n=await fetch(`${CLOUD_API}/api/upload`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(t)}),a=await n.json();if(!n.ok)throw new Error(a.error??"Upload failed");a.passphrase?(localStorage.setItem(CLOUD_KEY,a.passphrase),initRealtime(),openCloudModal(),setCloudStatus("Save created! Copy your passphrase.","success")):(disableCloudBtns(!1),setCloudStatus(`Saved — ${db.length} paper${1!==db.length?"s":""}.`,"success")),lastSyncHash=CryptoJS.SHA256(JSON.stringify(db)).toString(),setSyncState("synced"),updateSyncTime(a.updated_at)}catch(e){disableCloudBtns(!1),setCloudStatus(e.message,"error"),setSyncState("error")}}async function cloudLoad(e){disableCloudBtns(!0),setCloudStatus("Loading from cloud…","loading");try{const t=await fetch(`${CLOUD_API}/api/download`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({passphrase:e})}),n=await t.json();if(!t.ok)throw new Error(n.error??"Download failed");db=n.data,nextId=db.length?Math.max(...db.map((e=>e.id)))+1:1,saveToStorage(),renderPerformance(),renderHistory(),disableCloudBtns(!1),setCloudStatus(`Loaded ${db.length} paper${1!==db.length?"s":""}.`,"success"),setSyncState("synced"),updateSyncTime(n.updated_at)}catch(e){disableCloudBtns(!1),setCloudStatus(e.message,"error"),setSyncState("error")}}function cloudLoadFromInput(){const e=(document.getElementById("cloud-pp-input")?.value||"").trim();e?(localStorage.setItem(CLOUD_KEY,e),initRealtime(),cloudLoad(e)):setCloudStatus("Enter a passphrase.","error")}function copyPassphrase(){const e=localStorage.getItem(CLOUD_KEY);e&&navigator.clipboard.writeText(e).then((()=>setCloudStatus("Copied!","success"))).catch((()=>setCloudStatus("Could not copy — select manually.","error")))}function forgetPassphrase(){realtimeChannel&&(realtimeChannel.unsubscribe(),realtimeChannel=null),localStorage.removeItem(CLOUD_KEY),setSyncState("idle");const e=document.getElementById("sync-time");e&&(e.style.display="none"),openCloudModal()}function showToast(e){let t=document.getElementById("app-toast");t||(t=document.createElement("div"),t.id="app-toast",t.className="toast",document.body.appendChild(t)),t.textContent=e,t.classList.add("show"),clearTimeout(t._t),t._t=setTimeout((()=>t.classList.remove("show")),3e3)}window.onerror=function(e,t,n,a){const s=localStorage.getItem(CLOUD_KEY),o=s?CryptoJS.SHA256(s).toString().slice(0,6):"guest";fetch(`${CLOUD_API}/api/error`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({error:e,userId:o,location:`${t}:${n}:${a}`,system:{userAgent:navigator.userAgent,platform:navigator.platform,screen:`${screen.width}x${screen.height}`,language:navigator.language},state:{dbSize:db.length,url:location.href}})}).catch((()=>{}))};
+</script>
+<div class="layout">
+
+  <!-- SIDEBAR OVERLAY (mobile) -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileSidebar()"></div>
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-icon"><i class="fas fa-graduation-cap"></i></div>
+      <div>
+        <div class="brand-name">AezTrack</div>
+        <div class="brand-ver">v3.0 Cloud</div>
+      </div>
+    </div>
+
+    <div class="nav-item active" data-view="view-performance" onclick="setView('view-performance',this)">
+      <i class="fas fa-chart-bar"></i> Performance
+    </div>
+    <div class="nav-item" data-view="view-pastpapers" onclick="setView('view-pastpapers',this)">
+      <i class="fas fa-book-open"></i> Past Papers
+    </div>
+    <div class="nav-item" data-view="view-log" onclick="setView('view-log',this)">
+      <i class="fas fa-plus-circle"></i> Log Paper
+    </div>
+    <div class="nav-item" data-view="view-history" onclick="setView('view-history',this)">
+      <i class="fas fa-list-ul"></i> History
+    </div>
+
+    <div class="nav-divider"></div>
+
+    <div class="sidebar-footer">
+      <!-- Cloud sync block -->
+      <div class="sync-block" onclick="openCloudModal()">
+        <div class="sync-row">
+          <div id="sync-dot" class="sync-dot idle"></div>
+          <span id="sync-label" style="font-size:13px;font-weight:500">Cloud sync</span>
+          <i class="fas fa-cloud" style="margin-left:auto;font-size:12px;color:var(--text-3)"></i>
+        </div>
+        <div id="sync-time" class="sync-time" style="display:none"></div>
+      </div>
+
+      <button class="theme-btn" onclick="toggleTheme()">
+        <i class="fas fa-moon" id="theme-icon" style="width:16px;text-align:center"></i>
+        <span>Toggle theme</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- MOBILE HEADER -->
+  <div style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+    <div class="mobile-header">
+      <span class="mobile-brand">AezTrack</span>
+      <button class="hamburger" onclick="openMobileSidebar()"><i class="fas fa-bars"></i></button>
+    </div>
+
+    <!-- MAIN -->
+    <main class="main">
+
+      <!-- PERFORMANCE -->
+      <section id="view-performance" class="view active">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Performance</div>
+            <div class="page-sub">Your scores across all subjects</div>
+          </div>
+        </div>
+        <div id="perf-grid" class="perf-grid"></div>
+      </section>
+<!-- (c) 2026 Aezdek. All rights reserved. Do not redistribute. -->
+      <!-- PAST PAPERS -->
+      <section id="view-pastpapers" class="view">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Past Papers</div>
+            <div class="page-sub">Browse & open IGCSE papers</div>
+          </div>
+          <button class="filter-trigger-btn" id="filter-btn" onclick="openFilterModal()">
+            <i class="fas fa-sliders-h"></i> Filters
+          </button>
+        </div>
+
+        <div class="doc-tabs">
+          <button class="doc-tab active" onclick="setDocType('qp',this)"><i class="fas fa-file-pdf"></i> Question Papers</button>
+          <button class="doc-tab" onclick="setDocType('ms',this)"><i class="fas fa-check-circle"></i> Mark Schemes</button>
+          <button class="doc-tab" onclick="setDocType('er',this)"><i class="fas fa-clipboard-list"></i> Examiner Reports</button>
+          <button class="doc-tab" onclick="setDocType('gt',this)"><i class="fas fa-chart-bar"></i> Grade Thresholds</button>
+        </div>
+
+        <div id="pp-list" style="display:flex;flex-direction:column;gap:4px">
+          <div class="empty-state">
+            <i class="fas fa-book-open"></i><h3>Select a Subject</h3>
+            <p>Open Filters and choose a subject to browse papers.</p>
+          </div>
+        </div>
+      </section>
+<!-- (c) 2026 Aezdek. All rights reserved. Do not redistribute. -->
+      <!-- LOG -->
+      <section id="view-log" class="view">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Log Paper</div>
+            <div class="page-sub">Record a past paper attempt</div>
+          </div>
+        </div>
+
+        <!-- Edit mode banner -->
+        <div class="edit-banner" id="edit-banner">
+          <i class="fas fa-pen" style="font-size:13px"></i>
+          <span>Editing existing entry — save to confirm or cancel to discard</span>
+          <button onclick="cancelEdit()">Cancel edit</button>
+        </div>
+
+        <div class="card">
+          <input type="hidden" id="edit-id" value="-1">
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Subject</label>
+              <select id="in-sub" onchange="loadPaperOptions()">
+                <option value="">Select subject</option>
+                <option>Mathematics</option><option>Physics</option><option>Chemistry</option>
+                <option>Biology</option><option>Computer Science</option><option>English</option><option>Accounts</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Paper Type</label>
+              <select id="in-type"><option value="">Select subject first</option></select>
+            </div>
+            <div class="form-group">
+              <label>Variant (e.g. 11)</label>
+              <input type="number" id="in-var" placeholder="11" min="0" max="99">
+            </div>
+          </div>
+
+          <div class="form-grid" style="margin-top:16px">
+            <div class="form-group">
+              <label>Session</label>
+              <select id="in-sess">
+                <option>May/June</option><option>Oct/Nov</option><option>Feb/March</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Year</label>
+              <input type="number" id="in-year" value="2026" min="1990" max="2030">
+            </div>
+          </div>
+
+          <div class="form-grid" style="margin-top:16px;align-items:end">
+            <div class="form-group">
+              <label>Marks Got</label>
+              <input type="number" id="in-got" oninput="calcPerc()" min="0" placeholder="0">
+            </div>
+            <div class="form-group">
+              <label>Total Marks</label>
+              <input type="number" id="in-total" oninput="calcPerc()" min="1" placeholder="0">
+            </div>
+            <div class="form-group">
+              <label>Percentage</label>
+              <div class="perc-display" id="perc-disp">--</div>
+            </div>
+          </div>
+
+          <div class="form-grid" style="margin-top:16px">
+            <div class="form-group">
+              <label>Wrong Questions (one per line)</label>
+              <textarea id="in-wrong" placeholder="Q1, Q4(b), …"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Notes</label>
+              <textarea id="in-notes" placeholder="Observations, topics to review…"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Time Taken</label>
+              <input type="text" id="in-time" placeholder="e.g. 1h 30m">
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-top:20px">
+            <label class="checkbox-label">
+              <input type="checkbox" id="allow-dup">
+              Allow duplicate papers
+            </label>
+            <div class="btn-row">
+              <button class="btn btn-ghost" onclick="clearForm()"><i class="fas fa-eraser"></i> Clear</button>
+              <button class="btn btn-primary" onclick="saveEntry()"><i class="fas fa-save"></i> Save Entry</button>
+            </div>
+          </div>
+
+          <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
+            <div class="btn-row">
+              <button class="btn btn-secondary" onclick="exportDB()"><i class="fas fa-download"></i> Export</button>
+              <input type="file" id="import-file" style="display:none" onchange="importDB(event)" accept=".aez">
+              <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()"><i class="fas fa-upload"></i> Import</button>
+              <button class="btn btn-secondary" onclick="openCloudModal()"><i class="fas fa-cloud"></i> Cloud Sync</button>
+            </div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:8px">
+              <i class="fas fa-keyboard" style="margin-right:4px"></i> Ctrl+S to save · Esc to close modal
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- (c) 2026 Aezdek. All rights reserved. Do not redistribute. -->
+      <section id="view-history" class="view">
+        <div class="page-header">
+          <div>
+            <div class="page-title">History</div>
+            <div class="page-sub">All logged papers</div>
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <select id="hist-sub" onchange="populateHistoryFilters();renderHistory()">
+            <option value="">All Subjects</option>
+            <option>Mathematics</option><option>Physics</option><option>Chemistry</option>
+            <option>Biology</option><option>Computer Science</option><option>English</option><option>Accounts</option>
+          </select>
+          <select id="hist-paper" onchange="renderHistory()"><option value="">All Papers</option></select>
+          <input type="number" id="hist-min" placeholder="Min %" min="0" max="100" oninput="renderHistory()" style="max-width:90px">
+          <input type="number" id="hist-max" placeholder="Max %" min="0" max="100" oninput="renderHistory()" style="max-width:90px">
+        </div>
+
+        <div class="stats-bar" id="hist-stats"></div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Paper</th>
+                <th data-sort="year" class="sortable" onclick="sortHistory('year')">Session <i class="fas fa-sort sort-icon"></i></th>
+                <th data-sort="perc" class="sortable" onclick="sortHistory('perc')">Score <i class="fas fa-sort sort-icon"></i></th>
+                <th>Time</th>
+                <th style="width:110px">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="hist-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div><!-- end main column -->
+</div><!-- end layout -->
+<!-- (c) 2026 Aezdek. All rights reserved. Do not redistribute. -->
+<div class="overlay" id="alert-overlay" onclick="if(event.target===this)closeModal('alert-overlay')">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="alert-title">Alert</div>
+      <button class="modal-close" onclick="closeModal('alert-overlay')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="alert-body"></div>
+    <div class="modal-foot" id="alert-foot">
+      <button class="btn btn-primary" onclick="closeModal('alert-overlay')">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- Entry Detail -->
+<div class="overlay" id="detail-overlay" onclick="if(event.target===this)closeModal('detail-overlay')">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="detail-title">Details</div>
+      <button class="modal-close" onclick="closeModal('detail-overlay')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="detail-body"></div>
+    <div class="modal-foot" id="detail-foot">
+      <button class="btn btn-secondary" onclick="closeModal('detail-overlay')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Filter Modal (Past Papers) -->
+<div class="overlay" id="filter-overlay" onclick="if(event.target===this)closeModal('filter-overlay')">
+  <div class="modal modal-lg">
+    <div class="modal-head">
+      <div class="modal-title">Filter Papers</div>
+      <button class="modal-close" onclick="closeModal('filter-overlay')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="filter-grid">
+        <div class="form-group">
+          <label>Subject</label>
+          <select id="fm-sub" onchange="onFilterSubChange()">
+            <option value="">All Subjects</option>
+            <option>Mathematics</option><option>Physics</option><option>Chemistry</option>
+            <option>Biology</option><option>Computer Science</option><option>English</option><option>Accounts</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Paper</label>
+          <select id="fm-paper"><option value="">All Papers</option></select>
+        </div>
+        <div class="form-group">
+          <label>Session</label>
+          <select id="fm-session">
+            <option value="">All Sessions</option>
+            <option value="m">Feb/March</option>
+            <option value="s">May/June</option>
+            <option value="w">Oct/Nov</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top:20px">
+        <label>Year Range</label>
+        <div class="filter-chip-row" style="margin-top:8px">
+          <div class="filter-chip yr-chip active" data-yr="2021-2025" onclick="document.querySelectorAll('.yr-chip').forEach(c=>c.classList.remove('active'));this.classList.add('active')">2021–2025</div>
+          <div class="filter-chip yr-chip" data-yr="2016-2020" onclick="document.querySelectorAll('.yr-chip').forEach(c=>c.classList.remove('active'));this.classList.add('active')">2016–2020</div>
+          <div class="filter-chip yr-chip" data-yr="2011-2015" onclick="document.querySelectorAll('.yr-chip').forEach(c=>c.classList.remove('active'));this.classList.add('active')">2011–2015</div>
+          <div class="filter-chip yr-chip" data-yr="2006-2010" onclick="document.querySelectorAll('.yr-chip').forEach(c=>c.classList.remove('active'));this.classList.add('active')">2006–2010</div>
+          <div class="filter-chip yr-chip" data-yr="all" onclick="document.querySelectorAll('.yr-chip').forEach(c=>c.classList.remove('active'));this.classList.add('active')">All Years</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="resetFilters()">Reset</button>
+      <button class="btn btn-secondary" onclick="closeModal('filter-overlay')">Cancel</button>
+      <button class="btn btn-primary" onclick="applyFilters()"><i class="fas fa-check"></i> Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cloud Modal -->
+<div class="overlay" id="cloud-overlay" onclick="if(event.target===this)closeModal('cloud-overlay')">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Cloud Sync</div>
+      <button class="modal-close" onclick="closeModal('cloud-overlay')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <!-- Stored passphrase view -->
+      <div id="cloud-stored" style="display:none">
+        <p style="color:var(--text-2);font-size:13px;margin-bottom:16px;line-height:1.6">
+          Your passphrase is saved. Changes are synced automatically in the background. No expiry.
+        </p>
+        <div class="info-label" style="margin-bottom:8px">Your Passphrase</div>
+        <div class="passphrase-box">
+          <div class="passphrase-text" id="cloud-pp-show"></div>
+          <button class="btn btn-secondary" style="padding:6px 10px" onclick="copyPassphrase()"><i class="fas fa-copy"></i></button>
+        </div>
+        <button onclick="forgetPassphrase()" style="background:none;border:none;color:var(--text-3);font-size:12px;cursor:pointer;margin-top:10px;text-decoration:underline;font-family:var(--font-body)">
+          Forget passphrase
+        </button>
+      </div>
+
+      <!-- No passphrase view -->
+      <div id="cloud-new" style="display:none">
+        <p style="color:var(--text-2);font-size:13px;margin-bottom:20px;line-height:1.6">
+          Back up your data and access it from any device. No account needed. No expiry.
+        </p>
+        <div class="card card-sm" style="margin-bottom:12px">
+          <div style="font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px;font-size:13.5px">
+            <i class="fas fa-plus-circle" style="color:var(--accent)"></i> Create New Save
+          </div>
+          <p style="font-size:12.5px;color:var(--text-3);margin-bottom:12px">You'll receive a passphrase — keep it safe.</p>
+          <button class="btn btn-primary" style="width:100%" onclick="cloudUpload()">
+            <i class="fas fa-cloud-upload-alt"></i> Upload & Get Passphrase
+          </button>
+        </div>
+        <div class="card card-sm">
+          <div style="font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px;font-size:13.5px">
+            <i class="fas fa-key" style="color:var(--amber)"></i> Restore from Cloud
+          </div>
+          <p style="font-size:12.5px;color:var(--red);margin-bottom:12px">This replaces your local data.</p>
+          <input type="text" id="cloud-pp-input" placeholder="word-word-word-word-word-word-word-word-word-word"
+            style="margin-bottom:10px;font-family:var(--font-mono);font-size:12px;letter-spacing:.02em"
+            oninput="this.value=this.value.toLowerCase().trim()">
+          <button class="btn btn-secondary" style="width:100%" onclick="cloudLoadFromInput()">
+            <i class="fas fa-cloud-download-alt"></i> Load from Cloud
+          </button>
+        </div>
+      </div>
+
+      <!-- Status -->
+      <div id="cloud-status" style="display:none"></div>
+    </div>
+    <div class="modal-foot" id="cloud-foot">
+      <button class="btn btn-secondary" onclick="closeModal('cloud-overlay')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import Conflict -->
+<div class="overlay" id="conflict-overlay" onclick="if(event.target===this)closeModal('conflict-overlay')">
+  <div class="modal modal-lg">
+    <div class="modal-head">
+      <div class="modal-title">Resolve Duplicates</div>
+      <button class="modal-close" onclick="closeModal('conflict-overlay')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="conflict-body"></div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('conflict-overlay')">Cancel Import</button>
+      <button class="btn btn-ghost" onclick="resolveAll('keep')">Keep All</button>
+      <button class="btn btn-primary" onclick="resolveAll('replace')">Import All</button>
+    </div>
+  </div>
+</div>
+
+<!-- Launch / Welcome -->
+<div class="overlay" id="launch-modal" onclick="if(event.target===this){closeLaunch()}">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-body" style="text-align:center">
+      <div class="launch-icon"><i class="fas fa-graduation-cap"></i></div>
+      <div class="launch-title">Welcome to AezTrack</div>
+      <p class="launch-body">
+        Track your IGCSE past papers, monitor performance, and sync to the cloud.<br>
+        <span style="color:var(--amber);font-size:12px"><i class="fas fa-info-circle"></i> Data is stored on your device by default.</span>
+      </p>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="closeLaunch()">
+        Get Started <i class="fas fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+function closeLaunch() {
+  document.getElementById('launch-modal').classList.remove('open');
+  localStorage.setItem('aeztrack_launched','true');
+}
+</script>
+
+</body>
+</html>
+<!-- (c) 2026 Aezdek. All rights reserved. Do not redistribute. -->

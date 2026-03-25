@@ -15,12 +15,13 @@ When the **Manage Subjects** modal appears, input the following technical detail
 
 | Field | Description | Example |
 | :--- | :--- | :--- |
+| **Level** | Level of Course | `IGCSE` |
 | **Subject Name** | The formal title of the course. | `A Level Mathematics` |
 | **CIE Code** | The specific 4-digit identifier. | `9709` |
 | **Variant Type** | Defines the paper structure (keep as **Standard** for most). | `Standard (1, 2, 3)` |
 | **Papers** | Comma-separated list of specific components. | `Paper 1, Paper 3, Paper 6` |
 
-<img width="911" height="788" alt="image" src="https://github.com/user-attachments/assets/94d83019-861d-4a95-885d-84d2c171a383" />
+<img width="847" height="746" alt="image" src="https://github.com/user-attachments/assets/a8c0a148-69c7-4e5e-bdf9-9bd4fd4a1bec" />
 
 
 > [!NOTE]  

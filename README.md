@@ -6,6 +6,8 @@ A lightweight, single-file web app for tracking IGCSE past paper attempts - with
 
 ---
 
+[**Note**] : This webpage lacks commit histories as the host website uses a different private repository, this repo is not up to date. (will be done soon)
+
 ## Features
 
 - **Performance Overview** — per-subject average scores at a glance

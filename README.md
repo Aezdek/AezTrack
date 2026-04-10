@@ -7,6 +7,8 @@ A lightweight, single-file web app for tracking IGCSE past paper attempts - with
 ---
 
 [**Note**] : This repo lacks commit histories as the host website uses a different private repository, this repo is not up to date. (will be done soon)
+<img width="1037" height="891" alt="image" src="https://github.com/user-attachments/assets/f51c0b1c-3a64-47fd-ba70-b4bd823ab50b" />
+
 
 ## Features
 

@@ -35,7 +35,7 @@ A lightweight, single-file web app for tracking IGCSE past paper attempts - with
 
 ---
 
-### Please note Ability to add other subjects will be added soon.
+### **Add Custom Subjects(IG/OL/AL)**: ([HERE])(https://github.com/Aezdek/AezTrack/blob/main/CustomSubject.md)
 
 ## Tech Stack
 

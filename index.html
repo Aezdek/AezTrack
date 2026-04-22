@@ -1,384 +1,605 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- SEO stuffzz -->
-   <script type="application/ld+json">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AezTrack – IGCSE Past Paper Tracker & Revision Tool</title>
+<meta name="description" content="Track, analyse, and improve your IGCSE past paper performance. Built-in paper browser, grade analytics, revision streak, and optional cloud sync. Free, no account required.">
+<meta name="keywords" content="IGCSE tracker, past paper tracker, IGCSE revision, Cambridge past papers, IGCSE analytics, exam revision tool, Cambridge IGCSE 0580 0625 0620 0478">
+<meta name="robots" content="index, follow">
+<meta name="author" content="Aezdek">
+<link rel="canonical" href="https://aeztrack.vercel.app">
+<meta property="og:title" content="AezTrack – IGCSE Past Paper Tracker">
+<meta property="og:description" content="Track your IGCSE past papers with grade analytics, paper browser, and cloud sync. Free &amp; no account needed.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://aeztrack.vercel.app">
+<meta property="og:image" content="https://aeztrack.vercel.app/og.png">
+<meta property="og:site_name" content="AezTrack">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AezTrack – IGCSE Past Paper Tracker">
+<meta name="twitter:description" content="Grade analytics, paper browser, and cloud sync for Cambridge IGCSE students.">
+<!-- PWA soon -->
+<link rel="manifest" href="manifest.json"> 
+<meta name="theme-color" content="#09090b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AezTrack">
+<!-- SEO Stuffzzzzz -->
+<script type="application/ld+json">
 {
-  "@context": "https://schema.org",
+      "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "name": "AezTrack",
   "applicationCategory": "EducationalApplication",
   "operatingSystem": "Web",
-  "description": "IGCSE past paper tracker with analytics and cloud sync",
-  "url": "https://aeztrack.vercel.app"
+  "description": "IGCSE past paper tracker with grade analytics and cloud sync for Cambridge students",
+  "url": "https://aeztrack.vercel.app",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "keywords": "IGCSE, Cambridge, past papers, revision, tracker"
 }
-
 </script>
-
-<meta name="description" content="Track, analyse, and improve your IGCSE past paper performance with AezTrack. Built-in paper browser, analytics, and cloud sync. Free and no account required.">
-<meta name="keywords" content="IGCSE tracker, past paper tracker, IGCSE revision tool, exam tracker, Cambridge IGCSE papers">
-<meta property="og:title" content="AezTrack – IGCSE Past Paper Tracker">
-<meta property="og:description" content="Track and analyse your IGCSE past papers with analytics, built-in paper browser, and cloud sync.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://aeztrack.vercel.app">
-
-
-<link rel="canonical" href="https://aeztrack.vercel.app">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AezTrack – IGCSE Past Paper Tracker & Revision Tool</title>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+  }
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="https://aeztrack.vercel.app/style.css">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<div class="seo-text" aria-hidden="true">
+  <h1>IGCSE Past Paper Performance Tracker</h1>
+  <p>AezTrack is a free Cambridge IGCSE revision tool. Track past paper attempts for Mathematics (0580), Physics (0625), Chemistry (0620), Biology (0610), Computer Science (0478), and English (0500). analyse your performance with sparkline charts, and sync your data to the cloud — no account required.</p>
+</div>
+
 <div class="layout">
-<div class="sidebar-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
-<nav class="sidebar" id="sidebar">
-  <div class="brand">
-    <div class="brand-icon"><i class="fas fa-graduation-cap"></i></div>
-    <div><div class="brand-name">AezTrack</div><div class="brand-ver">v3.5 Cloud</div></div>
-  </div>
-  <div class="nav-item active" data-view="view-dashboard" onclick="setView('view-dashboard',this)"><i class="fas fa-home"></i> Dashboard</div>
-  <div class="nav-item" data-view="view-performance" onclick="setView('view-performance',this)"><i class="fas fa-chart-bar"></i> Performance</div>
-  <div class="nav-item" data-view="view-pastpapers" onclick="setView('view-pastpapers',this)"><i class="fas fa-book-open"></i> Past Papers</div>
-  <div class="nav-item" data-view="view-log" onclick="setView('view-log',this)"><i class="fas fa-plus-circle"></i> Log Paper</div>
-  <div class="nav-item" data-view="view-history" onclick="setView('view-history',this)"><i class="fas fa-list-ul"></i> History</div>
-  <div class="nav-item" data-view="view-subjects" onclick="setView('view-subjects',this)"><i class="fas fa-flask"></i> Subjects</div>
-  <div class="nav-divider"></div>
-  <div class="sidebar-footer">
-    <div class="sync-block" onclick="openCloudModal()">
-      <div class="sync-row"><div id="sync-dot" class="sync-dot idle"></div><span id="sync-label">Cloud sync</span><i class="fas fa-cloud" style="margin-left:auto;font-size:11px;color:var(--text-3)"></i></div>
-      <div id="sync-time" class="sync-time" style="display:none"></div>
+
+  <div class="sidebar-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
+
+  <nav class="sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="brand">
+      <div class="brand-logo-wrap" aria-hidden="true">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="brand-svg">
+          <rect width="32" height="32" rx="8" fill="var(--accent)" opacity="0.15"/>
+          <path d="M16 5L6 11.5V20.5L16 27L26 20.5V11.5L16 5Z" stroke="var(--accent)" stroke-width="1.8" stroke-linejoin="round" fill="none"/>
+          <path d="M16 5L16 27" stroke="var(--accent)" stroke-width="1.2" opacity="0.4"/>
+          <path d="M6 11.5L26 11.5" stroke="var(--accent)" stroke-width="1.2" opacity="0.4"/>
+          <path d="M6 20.5L26 20.5" stroke="var(--accent)" stroke-width="1.2" opacity="0.4"/>
+          <circle cx="16" cy="16" r="3" fill="var(--accent)" opacity="0.9"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">AezTrack</div>
+        <div class="brand-ver" id="brand-quote"></div>
+      </div>
     </div>
-    <button class="theme-btn" onclick="toggleTheme()"><i class="fas fa-moon" id="theme-icon"></i><span>Toggle theme</span></button>
+
+    <div class="nav-section">
+      <div class="nav-item active" data-view="view-dashboard" onclick="setView('view-dashboard',this)" role="button" tabindex="0">
+        <i class="fas fa-house-chimney" aria-hidden="true"></i><span>Dashboard</span>
+      </div>
+      <div class="nav-item" data-view="view-performance" onclick="setView('view-performance',this)" role="button" tabindex="0">
+        <i class="fas fa-chart-line" aria-hidden="true"></i><span>Performance</span>
+      </div>
+      <div class="nav-item" data-view="view-pastpapers" onclick="setView('view-pastpapers',this)" role="button" tabindex="0">
+        <i class="fas fa-book-open" aria-hidden="true"></i><span>Past Papers</span>
+      </div>
+      <div class="nav-item" data-view="view-history" onclick="setView('view-history',this)" role="button" tabindex="0">
+        <i class="fas fa-list-ul" aria-hidden="true"></i><span>History</span>
+      </div>
+      <div class="nav-item" data-view="view-subjects" onclick="setView('view-subjects',this)" role="button" tabindex="0">
+        <i class="fas fa-flask" aria-hidden="true"></i><span>Subjects</span>
+      </div>
+      <div class="nav-item" data-view="view-planner" onclick="setView('view-planner',this)" role="button" tabindex="0">
+        <i class="fas fa-calendar-check" aria-hidden="true"></i><span>Planner</span>
+      </div>
+    </div>
+
+    <div class="nav-divider"></div>
+
+    <div class="nav-item nav-log" id="nav-log-btn" onclick="openLogDrawer()" role="button" tabindex="0">
+      <i class="fas fa-plus" aria-hidden="true"></i><span>Log Paper</span>
+      <span class="nav-pill">+</span>
+    </div>
+
+    <div class="nav-divider"></div>
+
+    <div class="sidebar-footer">
+      <div class="profile-block" onclick="openSettingsModal()" role="button" tabindex="0" aria-label="Profile settings">
+        <div class="profile-avatar">
+          <img class="profile-avatar-img" src="" alt="" style="display:none;width:100%;height:100%;border-radius:50%;object-fit:cover">
+          <div id="profile-avatar-placeholder-sb" style="width:100%;height:100%;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;color:var(--accent)"><i class="fas fa-user" style="font-size:13px"></i></div>
+        </div>
+        <div class="profile-info">
+          <div class="profile-name-display"></div>
+          <div class="profile-settings-hint">Settings</div>
+        </div>
+        <i class="fas fa-cog" style="font-size:11px;color:var(--text-3);margin-left:auto"></i>
+      </div>
+      <div class="sync-block" onclick="openCloudModal()" role="button" tabindex="0" aria-label="Cloud sync status">
+        <div class="sync-row">
+          <div id="sync-dot" class="sync-dot" aria-hidden="true"></div>
+          <span id="sync-label">Cloud sync</span>
+          <i class="fas fa-cloud" style="margin-left:auto;font-size:10px;color:var(--text-3)" aria-hidden="true"></i>
+        </div>
+        <div id="sync-time" class="sync-time" style="display:none" aria-live="polite"></div>
+      </div>
+      <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle colour theme">
+        <i class="fas fa-moon" id="theme-icon" aria-hidden="true"></i><span>Toggle theme</span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="main-col">
+
+    <div class="mobile-header">
+      <span class="mobile-brand">AezTrack</span>
+      <div style="display:flex;gap:8px">
+        <button class="icon-btn bot-nav-item" data-view="view-planner" aria-label="Planner" title="Planner" style="flex:none"><i class="fas fa-calendar-check"></i></button>
+        <button class="icon-btn" onclick="openCloudModal()" aria-label="Cloud sync"><i class="fas fa-cloud"></i></button>
+        <button class="icon-btn" onclick="toggleTheme()" aria-label="Toggle theme"><i class="fas fa-moon" id="theme-icon-mob"></i></button>
+        <button class="icon-btn" onclick="openSettingsModal()" aria-label="Settings"><i class="fas fa-cog"></i></button>
+      </div>
+    </div>
+
+    <main class="main" id="main-scroll">
+
+      <section id="view-dashboard" class="view active" aria-label="Dashboard">
+        <div id="dash-content" style="display:flex;flex-direction:column;gap:16px"></div>
+      </section>
+
+      <section id="view-pastpapers" class="view" aria-label="Past Papers">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Past Papers</div>
+            <div class="page-sub">Browse &amp; open IGCSE papers directly</div>
+          </div>
+          <button class="filter-btn" id="filter-btn" onclick="openFilterModal()">
+            <i class="fas fa-sliders-h" aria-hidden="true"></i> Filters
+          </button>
+        </div>
+        <div class="doc-tabs" role="tablist">
+          <button class="doc-tab active" onclick="setDocType('qp',this)" role="tab"><i class="fas fa-file-pdf"></i> Question Papers</button>
+          <button class="doc-tab" onclick="setDocType('ms',this)" role="tab"><i class="fas fa-check-circle"></i> Mark Schemes</button>
+          <button class="doc-tab" onclick="setDocType('er',this)" role="tab"><i class="fas fa-clipboard-list"></i> Examiner Reports</button>
+          <button class="doc-tab" onclick="setDocType('gt',this)" role="tab"><i class="fas fa-chart-bar"></i> Grade Thresholds</button>
+        </div>
+        <div id="pp-list" style="display:flex;flex-direction:column;gap:3px">
+          <div class="empty-state">
+            <i class="fas fa-book-open"></i>
+            <h3>Select a Subject</h3>
+            <p>Open Filters and choose a subject to browse papers.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-history" class="view" aria-label="History">
+        <div class="page-header">
+          <div>
+            <div class="page-title">History</div>
+            <div class="page-sub">All logged papers</div>
+          </div>
+        </div>
+        <div class="card card-sm">
+          <div class="filter-grid">
+            <div class="form-group"><label>Subject</label><select id="hist-sub" onchange="populateHistFilters();renderHistory()"><option value="">All</option></select></div>
+            <div class="form-group"><label>Paper</label><select id="hist-paper" onchange="renderHistory()"><option value="">All</option></select></div>
+            <div class="form-group"><label>Session</label>
+              <select id="hist-sess" onchange="renderHistory()">
+                <option value="">All</option>
+                <option value="May/June">May/June</option>
+                <option value="Oct/Nov">Oct/Nov</option>
+                <option value="Feb/March">Feb/March</option>
+              </select>
+              <!-- Todo remove A* cat for individual comps a nd add options CX, BX -->
+            </div>
+            <div class="form-group"><label>Year From</label><input type="number" id="hist-yr1" placeholder="2015" min="1990" max="2030" oninput="renderHistory()"></div>
+            <div class="form-group"><label>Year To</label><input type="number" id="hist-yr2" placeholder="2025" min="1990" max="2030" oninput="renderHistory()"></div>
+            <div class="form-group"><label>Min %</label><input type="number" id="hist-min" placeholder="0" min="0" max="100" oninput="renderHistory()"></div>
+            <div class="form-group"><label>Max %</label><input type="number" id="hist-max" placeholder="100" min="0" max="100" oninput="renderHistory()"></div>
+            <div class="form-group"><label>Grade</label>
+              <select id="hist-grade" onchange="renderHistory()">
+                <option value="">All</option>
+                <option>A*</option><option>A</option><option>B</option><option>C</option>
+                <option>D</option><option>E</option><option>F</option><option>G</option><option>U</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:8px;display:flex;justify-content:flex-end">
+            <button class="btn btn-ghost btn-sm" onclick="clearHistFilters()"><i class="fas fa-times"></i> Clear filters</button>
+          </div>
+        </div>
+        <div class="stats-bar" id="hist-stats" aria-live="polite"></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Paper</th>
+                <th data-sort="year" class="sortable" onclick="sortHistory('year')">Session <i class="fas fa-sort" style="font-size:9px;opacity:.4;margin-left:3px"></i></th>
+                <th data-sort="perc" class="sortable" onclick="sortHistory('perc')">Score <i class="fas fa-sort" style="font-size:9px;opacity:.4;margin-left:3px"></i></th>
+                <th>Time</th>
+                <th style="width:100px">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="hist-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="view-subjects" class="view" aria-label="Subjects">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Subjects</div>
+            <div class="page-sub">Manage tracked subjects</div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:14px">
+          <div id="subjects-list"></div>
+          <div class="divider"></div>
+          <div class="section-label">Add Custom Subject</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-group"><label>Level</label>
+              <select id="csub-level"><option value="igcse">IGCSE</option><option value="olevel">O Level</option><option value="aslevel">AS &amp; A Level</option></select>
+            </div>
+            <div class="form-group"><label>Subject Name</label><input type="text" id="csub-name" placeholder="e.g. Economics"></div>
+            <div class="form-group"><label>Subject Code</label><input type="text" id="csub-code" placeholder="e.g. 0455" maxlength="4"></div>
+            <div class="form-group"><label>Variant Type</label>
+              <select id="csub-variant">
+                <option value="standard">Standard (1,2,3)</option>
+                <option value="dual">Dual (1,2)</option>
+                <option value="math">Math (2,4)</option>
+                <option value="english">English (0,1,2)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:12px">
+            <label>Papers <span class="label-note">(comma-separated, e.g. "Paper 1, Paper 2")</span></label>
+            <input type="text" id="csub-papers" placeholder="Paper 1, Paper 2">
+          </div>
+          <p class="micro-copy"><i class="fas fa-info-circle"></i> Custom subjects won't appear in the Past Papers browser. Use for logging only.</p>
+          <div style="margin-top:14px;display:flex;justify-content:flex-end">
+            <button class="btn btn-primary" onclick="addCustomSub()"><i class="fas fa-plus"></i> Add Subject</button>
+          </div>
+        </div>
+
+      </section>
+
+      <section id="view-performance" class="view" aria-label="Performance">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Performance</div>
+            <div class="page-sub">Your scores across all subjects</div>
+          </div>
+        </div>
+        <div id="perf-content"></div>
+      </section>
+
+      <section id="view-planner" class="view" aria-label="Planner">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Planner</div>
+            <div class="page-sub">Organise your revision schedule</div>
+          </div>
+        </div>
+        <div id="planner-content"></div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<nav class="bot-nav" aria-label="Mobile navigation">
+  <div class="bot-nav-inner">
+    <button class="bot-nav-item active" data-view="view-dashboard" aria-label="Dashboard">
+      <i class="fas fa-house-chimney"></i>
+      <span>Home</span>
+    </button>
+    <button class="bot-nav-item" data-view="view-performance" aria-label="Performance">
+      <i class="fas fa-chart-line"></i>
+      <span>Stats</span>
+    </button>
+    <button class="bot-nav-fab" onclick="openLogDrawer()" aria-label="Log Paper">
+      <div class="bot-nav-fab-inner"><i class="fas fa-plus"></i></div>
+    </button>
+    <button class="bot-nav-item" data-view="view-pastpapers" aria-label="Past Papers">
+      <i class="fas fa-book-open"></i>
+      <span>Papers</span>
+    </button>
+    <button class="bot-nav-item" data-view="view-history" aria-label="History">
+      <i class="fas fa-list-ul"></i>
+      <span>History</span>
+    </button>
   </div>
 </nav>
 
-<div class="main-col">
-  <div class="mobile-header"><span class="mobile-brand">AezTrack</span><button class="hamburger" onclick="openSidebar()"><i class="fas fa-bars"></i></button></div>
-  <main class="main">
 
-    <!-- DASHBOARD -->
-    <section id="view-dashboard" class="view active">
-      <div id="dash-content" style="display:flex;flex-direction:column;gap:16px">
-        
-        <!-- STATIC SEO CONTENT: This is what Google sees immediately -->
-        <div id="seo-welcome" style="padding: 20px; max-width: 800px; font-family: var(--body);">
-          <h1 style="font-size: 24px; margin-bottom: 10px; color: var(--text-1); font-weight: 700;">
-            IGCSE Past Paper Performance Tracker
-          </h1>
-          <p style="line-height: 1.6; color: var(--text-2); font-size: 14px;">
-            Welcome to <strong>AezTrack v3.5</strong>, the definitive tool for Cambridge IGCSE students. 
-            Analyze your performance across subjects like <strong>IGCSE Physics (0625)</strong>, 
-            <strong>Mathematics (0580)</strong>, and <strong>Computer Science (0478)</strong>.
-          </p>
-          
-          <div style="margin-top: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div style="background: var(--bg-card); padding: 15px; border-radius: var(--r); border: 1px solid var(--border);">
-              <h2 style="font-size: 15px; color: var(--accent); margin-bottom: 8px;"><i class="fas fa-history"></i> Track & Log</h2>
-              <p style="font-size: 12px; color: var(--text-3); line-height: 1.4;">
-                Log every attempt with automated grade thresholds for A* to G results. No account required.
-              </p>
-            </div>
-            <div style="background: var(--bg-card); padding: 15px; border-radius: var(--r); border: 1px solid var(--border);">
-              <h2 style="font-size: 15px; color: var(--purple); margin-bottom: 8px;"><i class="fas fa-chart-line"></i> Analyze Trends</h2>
-              <p style="font-size: 12px; color: var(--text-3); line-height: 1.4;">
-                Visualize your score history and identify weak topics across various exam sessions.
-              </p>
-            </div>
-          </div>
+<!-- LOG DRAWER -->
+<div class="drawer-backdrop" id="drawer-backdrop" onclick="closeLogDrawer()" aria-hidden="true"></div>
 
-          <!-- LOADING INDICATOR -->
-          <div style="text-align:center; padding:40px; color:var(--accent);">
-            <i class="fas fa-circle-notch fa-spin" style="font-size: 24px;"></i>
-            <p style="font-size: 12px; margin-top: 10px; font-family: var(--mono);">Initialising Dashboard...</p>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- PAST PAPERS -->
-    <section id="view-pastpapers" class="view">
-      <div class="page-header">
-        <div><div class="page-title">Past Papers</div><div class="page-sub">Browse &amp; open IGCSE papers</div></div>
-        <button class="filter-btn" id="filter-btn" onclick="openFilterModal()"><i class="fas fa-sliders-h"></i> Filters</button>
-      </div>
-      <div class="doc-tabs">
-        <button class="doc-tab active" onclick="setDocType('qp',this)"><i class="fas fa-file-pdf"></i> Question Papers</button>
-        <button class="doc-tab" onclick="setDocType('ms',this)"><i class="fas fa-check-circle"></i> Mark Schemes</button>
-        <button class="doc-tab" onclick="setDocType('er',this)"><i class="fas fa-clipboard-list"></i> Examiner Reports</button>
-        <button class="doc-tab" onclick="setDocType('gt',this)"><i class="fas fa-chart-bar"></i> Grade Thresholds</button>
-      </div>
-      <div id="pp-list" style="display:flex;flex-direction:column;gap:3px">
-        <div class="empty-state"><i class="fas fa-book-open"></i><h3>Select a Subject</h3><p>Open Filters and choose a subject.</p></div>
-      </div>
-    </section>
-
-    <!-- LOG PAPER -->
-    <section id="view-log" class="view">
-      <div class="page-header"><div><div class="page-title">Log Paper</div><div class="page-sub">Record a past paper attempt</div></div></div>
-      <div class="edit-banner" id="edit-banner">
-        <i class="fas fa-pen" style="font-size:12px"></i>
-        <span>Editing existing entry — save to confirm</span>
-        <button onclick="clearForm()">Cancel edit</button>
-      </div>
-      <div class="card">
-        <input type="hidden" id="edit-id" value="-1">
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
-          <div class="form-group"><label>Subject</label>
-            <select id="in-sub" onchange="loadPaperOptions()"><option value="">Select subject</option></select>
-          </div>
-          <div class="form-group"><label>Paper Type</label>
-            <select id="in-type"><option value="">Select subject first</option></select>
-          </div>
-          <div class="form-group"><label>Variant (e.g. 11)</label>
-            <input type="number" id="in-var" placeholder="11" min="0" max="99">
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px">
-          <div class="form-group"><label>Session</label>
-            <select id="in-sess"><option>May/June</option><option>Oct/Nov</option><option>Feb/March</option></select>
-          </div>
-          <div class="form-group"><label>Year</label>
-            <input type="number" id="in-year" value="2026" min="1990" max="2030">
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 80px;gap:14px;margin-top:14px;align-items:end">
-          <div class="form-group"><label>Marks Got</label><input type="number" id="in-got" oninput="calcPerc()" min="0" placeholder="0"></div>
-          <div class="form-group"><label>Total Marks</label><input type="number" id="in-total" oninput="calcPerc()" min="1" placeholder="0"></div>
-          <div class="form-group"><label>%</label><div class="perc-display" id="perc-disp">--</div></div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:14px">
-          <div class="form-group"><label>Wrong Questions <span style="font-weight:400;text-transform:none;font-size:10px">(one per line)</span></label>
-            <textarea id="in-wrong" placeholder="Q1, Q4(b)…" style="min-height:80px"></textarea>
-          </div>
-          <div class="form-group"><label>Notes</label><textarea id="in-notes" placeholder="Topics to review…" style="min-height:80px"></textarea></div>
-          <div class="form-group"><label>Time Taken</label><input type="text" id="in-time" placeholder="e.g. 1h 30m"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:18px">
-          <label class="checkbox-label"><input type="checkbox" id="allow-dup"> Allow duplicate papers</label>
-          <div class="btn-row">
-            <button class="btn btn-ghost" onclick="clearForm()"><i class="fas fa-eraser"></i> Clear</button>
-            <button class="btn btn-primary" onclick="saveEntry()"><i class="fas fa-save"></i> Save Entry</button>
-          </div>
-        </div>
-        <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border)">
-          <div class="btn-row">
-            <button class="btn btn-secondary" onclick="exportDB()"><i class="fas fa-download"></i> Export</button>
-            <input type="file" id="import-file" style="display:none" onchange="importDB(event)" accept=".aez">
-            <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()"><i class="fas fa-upload"></i> Import</button>
-            <button class="btn btn-secondary" onclick="openCloudModal()"><i class="fas fa-cloud"></i> Cloud Sync</button>
-          </div>
-          <div style="font-size:11px;color:var(--text-3);margin-top:7px"><i class="fas fa-keyboard" style="margin-right:4px"></i>Ctrl+S to save · Esc to close modal</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- HISTORY -->
-    <section id="view-history" class="view">
-      <div class="page-header"><div><div class="page-title">History</div><div class="page-sub">All logged papers</div></div></div>
-      <div class="card card-sm">
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px">
-          <div class="form-group"><label>Subject</label><select id="hist-sub" onchange="populateHistFilters();renderHistory()"><option value="">All</option></select></div>
-          <div class="form-group"><label>Paper</label><select id="hist-paper" onchange="renderHistory()"><option value="">All</option></select></div>
-          <div class="form-group"><label>Session</label>
-            <select id="hist-sess" onchange="renderHistory()">
-              <option value="">All</option>
-              <option value="May/June">May/June</option>
-              <option value="Oct/Nov">Oct/Nov</option>
-              <option value="Feb/March">Feb/March</option>
-            </select>
-          </div>
-          <div class="form-group"><label>Year From</label><input type="number" id="hist-yr1" placeholder="2015" min="1990" max="2030" oninput="renderHistory()"></div>
-          <div class="form-group"><label>Year To</label><input type="number" id="hist-yr2" placeholder="2025" min="1990" max="2030" oninput="renderHistory()"></div>
-          <div class="form-group"><label>Min %</label><input type="number" id="hist-min" placeholder="0" min="0" max="100" oninput="renderHistory()" style="max-width:80px"></div>
-          <div class="form-group"><label>Max %</label><input type="number" id="hist-max" placeholder="100" min="0" max="100" oninput="renderHistory()" style="max-width:80px"></div>
-          <div class="form-group"><label>Grade</label>
-            <select id="hist-grade" onchange="renderHistory()">
-              <option value="">All</option>
-              <option>A*</option><option>A</option><option>B</option><option>C</option>
-              <option>D</option><option>E</option><option>F</option><option>G</option><option>U</option>
-            </select>
-          </div>
-        </div>
-        <div style="margin-top:8px;display:flex;justify-content:flex-end">
-          <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px" onclick="clearHistFilters()"><i class="fas fa-times"></i> Clear filters</button>
-        </div>
-      </div>
-      <div class="stats-bar" id="hist-stats"></div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr>
-            <th>Paper</th>
-            <th data-sort="year" class="sortable" onclick="sortHistory('year')">Session <i class="fas fa-sort" style="font-size:9px;opacity:.5;margin-left:3px"></i></th>
-            <th data-sort="perc" class="sortable" onclick="sortHistory('perc')">Score <i class="fas fa-sort" style="font-size:9px;opacity:.5;margin-left:3px"></i></th>
-            <th>Time</th>
-            <th style="width:100px">Actions</th>
-          </tr></thead>
-          <tbody id="hist-tbody"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- SUBJECTS -->
-    <section id="view-subjects" class="view">
-      <div class="page-header"><div><div class="page-title">Subjects</div><div class="page-sub">Manage tracked subjects</div></div></div>
-      <div class="card">
-        <div id="subjects-list"></div>
-        <div style="height:1px;background:var(--border);margin:20px 0"></div>
-        <div style="font-size:14px;font-weight:600;margin-bottom:14px">Add Custom Subject</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          <div class="form-group"><label>Level</label>
-            <select id="csub-level"><option value="igcse">IGCSE</option><option value="olevel">O Level</option><option value="aslevel">AS &amp; A Level</option></select>
-          </div>
-          <div class="form-group"><label>Subject Name</label><input type="text" id="csub-name" placeholder="e.g. Economics"></div>
-          <div class="form-group"><label>CIE Code</label><input type="text" id="csub-code" placeholder="e.g. 0455" maxlength="4"></div>
-          <div class="form-group"><label>Variant Type</label>
-            <select id="csub-variant">
-              <option value="standard">Standard (1,2,3)</option>
-              <option value="dual">Dual (1,2)</option>
-              <option value="math">Math (2,4)</option>
-              <option value="english">English (0,1,2)</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group" style="margin-top:12px">
-          <label>Papers <span style="font-weight:400;text-transform:none;font-size:10px">(comma-separated, e.g. "Paper 1, Paper 2")</span></label>
-          <input type="text" id="csub-papers" placeholder="Paper 1, Paper 2">
-        </div>
-        <p style="font-size:11px;color:var(--text-3);margin-top:8px;line-height:1.5"><i class="fas fa-info-circle" style="margin-right:4px"></i>Custom subjects won't appear in Past Papers browser (they'll return 404). Use for logging only.</p>
-        <div style="margin-top:14px;display:flex;justify-content:flex-end">
-          <button class="btn btn-primary" onclick="addCustomSub()"><i class="fas fa-plus"></i> Add Subject</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- PERFORMANCE -->
-    <section id="view-performance" class="view">
-      <div class="page-header"><div><div class="page-title">Performance</div><div class="page-sub">Your scores across all subjects</div></div></div>
-      <div id="perf-content"></div>
-    </section>
-
-  </main>
-</div>
-</div>
-
-<!-- ═══ MODALS ═══ -->
-
-<!-- Alert -->
-<div class="overlay" id="alert-overlay" onclick="if(event.target===this)closeModal('alert-overlay')">
-  <div class="modal"><div class="modal-head"><div class="modal-title" id="alert-title">Alert</div><button class="modal-close" onclick="closeModal('alert-overlay')"><i class="fas fa-times"></i></button></div>
-  <div class="modal-body" id="alert-body"></div>
-  <div class="modal-foot" id="alert-foot"><button class="btn btn-primary" onclick="closeModal('alert-overlay')">OK</button></div></div>
-</div>
-
-<!-- Detail -->
-<div class="overlay" id="detail-overlay" onclick="if(event.target===this)closeModal('detail-overlay')">
-  <div class="modal"><div class="modal-head"><div class="modal-title" id="detail-title">Details</div><button class="modal-close" onclick="closeModal('detail-overlay')"><i class="fas fa-times"></i></button></div>
-  <div class="modal-body" id="detail-body"></div>
-  <div class="modal-foot" id="detail-foot"><button class="btn btn-secondary" onclick="closeModal('detail-overlay')">Close</button></div></div>
-</div>
-
-<!-- PP Filter -->
-<div class="overlay" id="filter-overlay" onclick="if(event.target===this)closeModal('filter-overlay')">
-  <div class="modal modal-lg"><div class="modal-head"><div class="modal-title">Filter Papers</div><button class="modal-close" onclick="closeModal('filter-overlay')"><i class="fas fa-times"></i></button></div>
-  <div class="modal-body">
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
-      <div class="form-group"><label>Subject</label><select id="fm-sub" onchange="onFmSubChange()"><option value="">All Subjects</option></select></div>
-      <div class="form-group"><label>Paper</label><select id="fm-paper"><option value="">All Papers</option></select></div>
-      <div class="form-group"><label>Session</label><select id="fm-session"><option value="">All</option><option value="m">Feb/March</option><option value="s">May/June</option><option value="w">Oct/Nov</option></select></div>
+<aside class="log-drawer" id="log-drawer" aria-label="Log Paper" role="complementary">
+  <div class="drawer-header">
+    <div>
+      <div class="drawer-title" id="drawer-title">Log Paper</div>
+      <div class="drawer-sub" id="drawer-sub">Record a past paper attempt</div>
     </div>
-    <div class="form-group" style="margin-top:16px"><label>Year Range</label>
-      <div class="filter-chip-row" style="margin-top:6px">
-        <div class="filter-chip yr-chip active" data-yr="2021-2025" onclick="yrChipClick(this)">2021–2025</div>
-        <div class="filter-chip yr-chip" data-yr="2016-2020" onclick="yrChipClick(this)">2016–2020</div>
-        <div class="filter-chip yr-chip" data-yr="2011-2015" onclick="yrChipClick(this)">2011–2015</div>
-        <div class="filter-chip yr-chip" data-yr="2006-2010" onclick="yrChipClick(this)">2006–2010</div>
-        <div class="filter-chip yr-chip" data-yr="all" onclick="yrChipClick(this)">All Years</div>
-      </div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="drawer-detach-btn" id="drawer-detach-btn" onclick="toggleDrawerDetach()" aria-label="Expand drawer">
+        <i class="fas fa-expand-arrows-alt"></i>
+      </button>
+      <button class="modal-close" onclick="closeLogDrawer()" aria-label="Close drawer"><i class="fas fa-times"></i></button>
     </div>
   </div>
-  <div class="modal-foot"><button class="btn btn-ghost" onclick="resetFilters()">Reset</button><button class="btn btn-secondary" onclick="closeModal('filter-overlay')">Cancel</button><button class="btn btn-primary" onclick="applyFilters()"><i class="fas fa-check"></i> Apply</button></div></div>
-</div>
 
-<!-- Cloud -->
-<div class="overlay" id="cloud-overlay" onclick="if(event.target===this)closeModal('cloud-overlay')">
-  <div class="modal"><div class="modal-head"><div class="modal-title">Cloud Sync</div><button class="modal-close" onclick="closeModal('cloud-overlay')"><i class="fas fa-times"></i></button></div>
-  <div class="modal-body">
-    <div id="cloud-stored" style="display:none">
-      <p style="color:var(--text-2);font-size:13px;margin-bottom:14px;line-height:1.6">Your passphrase is saved. Changes sync automatically.</p>
-      <div class="info-label" style="margin-bottom:7px">Your Passphrase</div>
-      <div class="passphrase-box"><div class="passphrase-text" id="cloud-pp-show"></div><button class="btn btn-secondary" style="padding:5px 9px" onclick="copyPassphrase()"><i class="fas fa-copy"></i></button></div>
-      <button onclick="forgetPassphrase()" style="background:none;border:none;color:var(--text-3);font-size:12px;cursor:pointer;margin-top:9px;text-decoration:underline;font-family:var(--body)">Forget passphrase (local only)</button>
+  <div class="drawer-body">
+    <div class="edit-banner" id="edit-banner">
+      <i class="fas fa-pen" style="font-size:11px"></i>
+      <span>Editing existing entry — save to confirm</span>
+      <button onclick="clearForm()">Cancel edit</button>
     </div>
-    <div id="cloud-new" style="display:none">
-      <p style="color:var(--text-2);font-size:13px;margin-bottom:16px;line-height:1.6">Back up your data and access it from any device. No account needed.</p>
-      <div class="card card-sm" style="margin-bottom:10px">
-        <div style="font-weight:700;margin-bottom:5px;font-size:13.5px"><i class="fas fa-plus-circle" style="color:var(--accent);margin-right:6px"></i>Create New Save</div>
-        <p style="font-size:12px;color:var(--text-3);margin-bottom:10px">You'll receive a passphrase — keep it safe.</p>
-        <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--text-3);margin-bottom:11px;cursor:pointer;line-height:1.5">
-          <input type="checkbox" id="cloud-consent-cb" style="margin-top:2px;flex-shrink:0;accent-color:var(--accent)">
-          By syncing, you agree that your study data will be stored on AezTrack's cloud servers. No personal info is collected.
-        </label>
-        <button class="btn btn-primary" style="width:100%" onclick="cloudUpload()"><i class="fas fa-cloud-upload-alt"></i> Upload &amp; Get Passphrase</button>
+
+    <input type="hidden" id="edit-id" value="-1">
+
+    <div class="form-row-3">
+      <div class="form-group">
+        <label>Subject</label>
+        <select id="in-sub" onchange="loadPaperOptions()"><option value="">Select subject</option></select>
       </div>
-      <div class="card card-sm">
-        <div style="font-weight:700;margin-bottom:5px;font-size:13.5px"><i class="fas fa-key" style="color:var(--amber);margin-right:6px"></i>Restore from Cloud</div>
-        <p style="font-size:12px;color:var(--red);margin-bottom:9px">This replaces your local data.</p>
-        <input type="text" id="cloud-pp-input" placeholder="word-word-word-word-word-word-word-word-word-word" style="margin-bottom:9px;font-family:var(--mono);font-size:11px">
-        <button class="btn btn-secondary" style="width:100%" onclick="cloudLoadFromInput()"><i class="fas fa-cloud-download-alt"></i> Load from Cloud</button>
+      <div class="form-group">
+        <label>Paper Type</label>
+        <select id="in-type"><option value="">Select subject first</option></select>
+      </div>
+      <div class="form-group">
+        <label>Variant <span class="label-note">e.g. 11</span></label>
+        <input type="number" id="in-var" placeholder="11" min="0" max="99">
       </div>
     </div>
-    <div id="cloud-status" style="display:none"></div>
-  </div>
-  <div class="modal-foot" id="cloud-foot"><button class="btn btn-secondary" onclick="closeModal('cloud-overlay')">Cancel</button></div></div>
-</div>
 
-<!-- Delete Cloud Data -->
-<div class="overlay" id="delete-overlay" onclick="if(event.target===this)closeModal('delete-overlay')">
-  <div class="modal"><div class="modal-head"><div><div class="modal-title" style="color:var(--red)"><i class="fas fa-trash" style="margin-right:7px"></i>Delete Cloud Data</div></div><button class="modal-close" onclick="closeModal('delete-overlay')"><i class="fas fa-times"></i></button></div>
-  <div class="modal-body">
-    <div style="padding:12px 13px;background:var(--red-dim);border-radius:var(--r-sm);border:1px solid var(--red-border);margin-bottom:16px;font-size:13px;color:var(--red);line-height:1.6">
-      <strong><i class="fas fa-exclamation-triangle" style="margin-right:5px"></i>This is irreversible.</strong> Your cloud save will be permanently deleted. Local data is unaffected.
+    <div class="form-row-2">
+      <div class="form-group">
+        <label>Session</label>
+        <select id="in-sess">
+          <option>May/June</option><option>Oct/Nov</option><option>Feb/March</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Year</label>
+        <input type="number" id="in-year" value="2026" min="1990" max="2030">
+      </div>
     </div>
-    <div class="form-group"><label>Confirm Passphrase</label><input type="text" id="del-pp-input" placeholder="Enter your passphrase to confirm" style="font-family:var(--mono);font-size:11px"></div>
-    <div id="del-status" style="display:none;margin-top:10px"></div>
+
+    <div class="form-row-3" style="align-items:end">
+      <div class="form-group">
+        <label>Marks Got</label>
+        <input type="number" id="in-got" oninput="calcPerc()" min="0" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>Total Marks</label>
+        <input type="number" id="in-total" oninput="calcPerc()" min="1" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>Result</label>
+        <div class="perc-display" id="perc-disp">--</div>
+      </div>
+    </div>
+
+    <details class="thr-drawer" id="drawer-thr-section" style="display:none">
+      <summary onclick="onDrawerThrOpen()">
+        <span><i class="fas fa-sliders-h" style="margin-right:6px;opacity:.5"></i>Grade Thresholds</span>
+        <span class="thr-drawer-badge" id="dw-thr-badge"></span>
+        <span class="thr-drawer-grade" id="dw-thr-grade"></span>
+      </summary>
+      <div class="thr-drawer-body">
+        <div id="dw-thr-saved-inline" style="display:none"></div>
+      </div>
+    </details>
+
+    <div class="form-row-2">
+      <div class="form-group">
+        <label>Wrong Questions <span class="label-note">one per line</span></label>
+        <textarea id="in-wrong" placeholder="Q1&#10;Q4(b)…" style="min-height:72px"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea id="in-notes" placeholder="Topics to review…" style="min-height:72px"></textarea>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Time Taken</label>
+      <input type="text" id="in-time" placeholder="e.g. 1h 30m">
+    </div>
+
+    <label class="checkbox-label">
+      <input type="checkbox" id="allow-dup"> Allow duplicate papers
+    </label>
+
+    <div class="drawer-divider"></div>
+
+    <div class="btn-row" style="flex-wrap:wrap">
+      <button class="btn btn-secondary" onclick="exportDB()"><i class="fas fa-download"></i> Export</button>
+      <!-- [Might be implemented later (use exportRawDump() from console if needed)] <button class="btn btn-secondary" onclick="exportRawDump()"><i class="fas fa-file-alt"></i> Raw Dump</button> -->
+      <input type="file" id="import-file" style="display:none" onchange="importDB(event)" accept=".aez">
+      <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()"><i class="fas fa-upload"></i> Import</button>
+      <!-- <button class="btn btn-secondary" onclick="openCloudModal()"><i class="fas fa-cloud"></i> Cloud Sync</button> [Remove Cloud Sync from here (redundant)] -->
+    </div>
+    <p class="micro-copy" style="margin-top:8px"><i class="fas fa-info-circle"></i> Export saves a .aez file. Import restores it on any device. <i class="fas fa-keyboard" style="margin-left:6px"></i> Ctrl+S to save · Esc to close</p>
   </div>
-  <div class="modal-foot"><button class="btn btn-secondary" onclick="closeModal('delete-overlay')">Cancel</button><button class="btn btn-danger" onclick="confirmDelete()"><i class="fas fa-trash"></i> Delete Cloud Data</button></div></div>
+
+  <div class="drawer-footer">
+    <button class="btn btn-ghost" onclick="clearForm()"><i class="fas fa-eraser"></i> Clear</button>
+    <button class="btn btn-ghost" onclick="openThrModal()" id="thr-toggle-btn" title="Set grade thresholds"><i class="fas fa-sliders-h"></i> Thresholds</button>
+    <button class="btn btn-primary" onclick="saveEntry()"><i class="fas fa-save"></i> Save Entry</button>
+  </div>
+
+</aside>
+
+
+<!-- I STORE MY MODALS HERE BTW -->
+
+  <div class="overlay" id="alert-overlay" onclick="if(event.target===this)closeModal('alert-overlay')" role="dialog" aria-modal="true" aria-labelledby="alert-title">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="alert-title">Alert</div>
+      <button class="modal-close" onclick="closeModal('alert-overlay')" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="alert-body"></div>
+    <div class="modal-foot" id="alert-foot"><button class="btn btn-primary" onclick="closeModal('alert-overlay')">OK</button></div>
+  </div>
 </div>
 
-<!-- Import Conflict -->
-<div class="overlay" id="conflict-overlay" onclick="if(event.target===this)closeModal('conflict-overlay')">
-  <div class="modal modal-lg"><div class="modal-head"><div class="modal-title">Resolve Duplicates</div><button class="modal-close" onclick="closeModal('conflict-overlay')"><i class="fas fa-times"></i></button></div>
-  <div class="modal-body" id="conflict-body"></div>
-  <div class="modal-foot"><button class="btn btn-secondary" onclick="closeModal('conflict-overlay')">Cancel</button><button class="btn btn-ghost" onclick="resolveAll('keep')">Keep All</button><button class="btn btn-primary" onclick="resolveAll('replace')">Import All</button></div></div>
+<div class="overlay" id="detail-overlay" onclick="if(event.target===this)closeModal('detail-overlay')" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="detail-title">Details</div>
+      <button class="modal-close" onclick="closeModal('detail-overlay')" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="detail-body"></div>
+    <div class="modal-foot" id="detail-foot"><button class="btn btn-secondary" onclick="closeModal('detail-overlay')">Close</button></div>
+  </div>
 </div>
 
-<!-- Tracker Log Modal -->
-<div class="overlay" id="tlm-overlay" onclick="if(event.target===this)closeModal('tlm-overlay')">
+<div class="overlay" id="filter-overlay" onclick="if(event.target===this)closeModal('filter-overlay')" role="dialog" aria-modal="true" aria-label="Filter papers">
+  <div class="modal modal-lg">
+    <div class="modal-head">
+      <div class="modal-title">Filter Papers</div>
+      <button class="modal-close" onclick="closeModal('filter-overlay')" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        <div class="form-group"><label>Subject</label><select id="fm-sub" onchange="onFmSubChange()"><option value="">All Subjects</option></select></div>
+        <div class="form-group"><label>Paper</label><select id="fm-paper"><option value="">All Papers</option></select></div>
+        <div class="form-group"><label>Session</label>
+          <select id="fm-session">
+            <option value="">All</option><option value="m">Feb/March</option>
+            <option value="s">May/June</option><option value="w">Oct/Nov</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:16px">
+        <label>Year Range</label>
+        <div class="filter-chip-row" style="margin-top:6px">
+          <div class="filter-chip yr-chip active" data-yr="2021-2025" onclick="yrChipClick(this)">2021–2025</div>
+          <div class="filter-chip yr-chip" data-yr="2016-2020" onclick="yrChipClick(this)">2016–2020</div>
+          <div class="filter-chip yr-chip" data-yr="2011-2015" onclick="yrChipClick(this)">2011–2015</div>
+          <div class="filter-chip yr-chip" data-yr="2006-2010" onclick="yrChipClick(this)">2006–2010</div>
+          <div class="filter-chip yr-chip" data-yr="all" onclick="yrChipClick(this)">All Years</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="resetFilters()">Reset</button>
+      <button class="btn btn-secondary" onclick="closeModal('filter-overlay')">Cancel</button>
+      <button class="btn btn-primary" onclick="applyFilters()"><i class="fas fa-check"></i> Apply</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="cloud-overlay" onclick="if(event.target===this)closeModal('cloud-overlay')" role="dialog" aria-modal="true" aria-label="Cloud sync">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Cloud Sync</div>
+      <button class="modal-close" onclick="closeModal('cloud-overlay')" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="cloud-stored" style="display:none">
+        <p style="color:var(--text-2);font-size:13px;margin-bottom:14px;line-height:1.6">Your passphrase is saved. Changes sync automatically.</p>
+        <div class="info-label" style="margin-bottom:7px">Your Passphrase</div>
+        <div class="passphrase-box">
+          <div class="passphrase-text" id="cloud-pp-show"></div>
+          <button class="btn btn-secondary" style="padding:5px 9px" onclick="copyPassphrase()" id="phraseBTNO" title="Copy passphrase"><i class="fas fa-copy"></i></button>
+        </div>
+        <button onclick="forgetPassphrase()" style="background:none;border:none;color:var(--text-3);font-size:12px;cursor:pointer;margin-top:9px;text-decoration:underline;font-family:var(--body)">Forget passphrase (local only)</button>
+      </div>
+      <div id="cloud-new" style="display:none">
+        <p style="color:var(--text-2);font-size:13px;margin-bottom:16px;line-height:1.6">Back up your data and access it from any device. No account needed.</p>
+        <div class="card card-sm" style="margin-bottom:10px">
+          <div style="font-weight:700;margin-bottom:5px;font-size:13px"><i class="fas fa-plus-circle" style="color:var(--accent);margin-right:6px"></i>Create New Save</div>
+          <p style="font-size:12px;color:var(--text-3);margin-bottom:10px">You'll receive a passphrase — keep it safe.</p>
+          <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--text-3);margin-bottom:11px;cursor:pointer;line-height:1.5">
+            <input type="checkbox" id="cloud-consent-cb" style="margin-top:2px;flex-shrink:0;accent-color:var(--accent)">
+            By syncing, you agree that your study data will be stored on AezTrack's cloud servers. No personal info is collected.
+          </label>
+          <button class="btn btn-primary" style="width:100%" onclick="cloudUpload()"><i class="fas fa-cloud-upload-alt"></i> Upload &amp; Get Passphrase</button>
+        </div>
+        <div class="card card-sm">
+          <div style="font-weight:700;margin-bottom:5px;font-size:13px"><i class="fas fa-key" style="color:var(--amber);margin-right:6px"></i>Restore from Cloud</div>
+          <p style="font-size:12px;color:var(--red);margin-bottom:9px">This replaces your local data.</p>
+          <input type="text" id="cloud-pp-input" placeholder="word-word-word-word-word-word-word-word-word-word" style="margin-bottom:9px;font-family:var(--mono);font-size:11px">
+          <button class="btn btn-secondary" style="width:100%" onclick="cloudLoadFromInput()"><i class="fas fa-cloud-download-alt"></i> Load from Cloud</button>
+        </div>
+      </div>
+      <div id="cloud-status" style="display:none"></div>
+    </div>
+    <div class="modal-foot" id="cloud-foot">
+      <button class="btn btn-secondary" onclick="closeModal('cloud-overlay')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="delete-overlay" onclick="if(event.target===this)closeModal('delete-overlay')" role="dialog" aria-modal="true" aria-label="Delete cloud data">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" style="color:var(--red)"><i class="fas fa-trash" style="margin-right:7px"></i>Delete Cloud Data</div>
+      <button class="modal-close" onclick="closeModal('delete-overlay')" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="padding:12px 13px;background:var(--red-dim);border-radius:var(--r-sm);border:1px solid var(--red-border);margin-bottom:16px;font-size:13px;color:var(--red);line-height:1.6">
+        <strong><i class="fas fa-exclamation-triangle" style="margin-right:5px"></i>This is irreversible.</strong> Your cloud save will be permanently deleted. Local data is unaffected.
+      </div>
+      <div class="form-group">
+        <label>Confirm Passphrase</label>
+        <input type="text" id="del-pp-input" placeholder="Enter your passphrase to confirm" style="font-family:var(--mono);font-size:11px">
+      </div>
+      <div id="del-status" style="display:none;margin-top:10px"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('delete-overlay')">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmDelete()"><i class="fas fa-trash"></i> Delete Cloud Data</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="conflict-overlay" onclick="if(event.target===this)closeModal('conflict-overlay')" role="dialog" aria-modal="true" aria-label="Resolve duplicates">
+  <div class="modal modal-lg">
+    <div class="modal-head">
+      <div class="modal-title">Resolve Duplicates</div>
+      <button class="modal-close" onclick="closeModal('conflict-overlay')" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="conflict-body"></div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('conflict-overlay')">Cancel</button>
+      <button class="btn btn-ghost" onclick="resolveAll('keep')">Keep All</button>
+      <button class="btn btn-primary" onclick="resolveAll('replace')">Import All</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="tlm-overlay" onclick="if(event.target===this)closeModal('tlm-overlay')" role="dialog" aria-modal="true" aria-labelledby="tlm-title">
   <div class="modal" style="max-width:520px">
     <div class="modal-head">
-      <div><div class="modal-title" id="tlm-title">Log Paper</div><div class="modal-subtitle" id="tlm-subtitle"></div></div>
-      <button class="modal-close" onclick="closeModal('tlm-overlay')"><i class="fas fa-times"></i></button>
+      <div>
+        <div class="modal-title" id="tlm-title">Log Paper</div>
+        <div class="modal-subtitle" id="tlm-subtitle"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('tlm-overlay')" aria-label="Close"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
       <div style="display:grid;grid-template-columns:1fr 1fr 68px 58px;gap:10px;align-items:end">
         <div class="form-group"><label>Marks Got</label><input type="number" id="tlm-got" min="0" placeholder="0" oninput="tlmCalc()"></div>
         <div class="form-group"><label>Total Marks</label><input type="number" id="tlm-total" min="1" placeholder="0" oninput="tlmCalc()"></div>
         <div class="form-group"><label>%</label><div class="perc-display" id="tlm-perc" style="font-size:13px;height:36px">--</div></div>
-        <div class="form-group"><label>Grade</label><div class="perc-display" id="tlm-grade" style="font-size:19px;font-weight:700;height:36px"></div></div>
+        <div class="form-group"><label>Grade</label><div class="perc-display" id="tlm-grade" style="font-size:18px;font-weight:700;height:36px"></div></div>
       </div>
       <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--r);padding:12px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
           <div style="font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em">Grade Thresholds (% per grade)</div>
-          <button class="btn btn-ghost" style="padding:2px 7px;font-size:10px" onclick="refetchThresholds()"><i class="fas fa-sync-alt"></i> Re-fetch</button>
+          <button class="btn btn-ghost btn-sm" onclick="refetchThresholds()"><i class="fas fa-sync-alt"></i> Re-fetch</button>
         </div>
         <div id="thr-status" style="display:none;align-items:center;gap:5px;font-size:11px;margin-bottom:8px;padding:5px 8px;background:var(--bg-card);border-radius:var(--r-sm)"></div>
         <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:5px">
@@ -391,59 +612,391 @@
           <div class="form-group"><label style="color:var(--red);font-size:9px">F</label><input type="number" id="thr-f" min="0" max="100" placeholder="—" oninput="tlmCalc()" style="text-align:center;padding:4px 2px;font-size:11px"></div>
           <div class="form-group"><label style="color:var(--red);font-size:9px">G</label><input type="number" id="thr-g" min="0" max="100" placeholder="—" oninput="tlmCalc()" style="text-align:center;padding:4px 2px;font-size:11px"></div>
         </div>
-        <div style="font-size:10px;color:var(--text-3);margin-top:7px"><i class="fas fa-info-circle" style="margin-right:3px"></i>Auto-fetched from CIE. Override any field. Saved per paper.</div>
+        <p class="micro-copy" style="margin-top:7px"><i class="fas fa-info-circle"></i> Auto-fetched. Override any field. Saved per paper.</p>
       </div>
-      <div class="form-group"><label>Wrong Questions <span style="font-weight:400;text-transform:none;font-size:9px;color:var(--text-3)">(one per line)</span></label><textarea id="tlm-wrong" placeholder="Q1, Q4(b)…" style="min-height:55px"></textarea></div>
+      <div class="form-group">
+        <label>Wrong Questions <span class="label-note">one per line</span></label>
+        <textarea id="tlm-wrong" placeholder="Q1, Q4(b)…" style="min-height:55px"></textarea>
+      </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div class="form-group"><label>Notes</label><textarea id="tlm-notes" placeholder="Topics to review…" style="min-height:55px"></textarea></div>
         <div class="form-group"><label>Time Taken</label><input type="text" id="tlm-time" placeholder="e.g. 1h 30m"></div>
       </div>
     </div>
-    <div class="modal-foot"><button class="btn btn-secondary" onclick="closeModal('tlm-overlay')">Cancel</button><button class="btn btn-primary" onclick="saveTlm()"><i class="fas fa-save"></i> Save Entry</button></div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('tlm-overlay')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTlm()"><i class="fas fa-save"></i> Save Entry</button>
+    </div>
   </div>
 </div>
 
-<!-- Launch / Tutorial -->
-<div class="overlay" id="launch-modal">
+<!-- Exam Countdown Modal -->
+<div class="overlay" id="exam-date-overlay" onclick="if(event.target===this)closeModal('exam-date-overlay')" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-head">
+      <div class="modal-title"><i class="fas fa-calendar-alt" style="color:var(--accent);margin-right:7px"></i>Exam Countdown</div>
+      <button class="modal-close" onclick="closeModal('exam-date-overlay')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
+      <p style="font-size:13px;color:var(--text-2);line-height:1.6">Set your first exam date to see a countdown on the dashboard.</p>
+      <div class="form-group"><label>Exam Label</label><input type="text" id="exam-label-input" placeholder="e.g. IGCSE Chemistry Paper 2" maxlength="50"></div>
+      <div class="form-group"><label>Exam Date</label><input type="date" id="exam-date-input"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost btn-sm" onclick="clearExamDate()"><i class="fas fa-trash"></i> Clear</button>
+      <button class="btn btn-secondary" onclick="closeModal('exam-date-overlay')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveExamDate()"><i class="fas fa-check"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Threshold Modal -->
+<div class="overlay" id="thr-modal-overlay" onclick="if(event.target===this)closeModal('thr-modal-overlay')" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title"><i class="fas fa-sliders-h" style="color:var(--accent);margin-right:7px"></i>Grade Thresholds</div>
+        <div class="modal-subtitle" id="thr-modal-sub" style="font-family:var(--mono);font-size:11px"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('thr-modal-overlay')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span id="dw-thr-status" style="font-size:11.5px;color:var(--text-3)">Min raw marks per grade</span>
+        <button class="btn btn-ghost btn-sm btn-fetch-thr" onclick="fetchDrawerThresholds()"><i class="fas fa-download"></i> Fetch</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:6px">
+        <div class="form-group"><label style="color:var(--green);font-size:9px;text-align:center">A*</label><input type="number" id="dw-thr-astar" min="0" max="999" placeholder="—" oninput="calcPerc()" style="text-align:center;padding:6px 2px;font-size:12px"></div>
+        <div class="form-group"><label style="color:var(--green);font-size:9px;text-align:center">A</label><input type="number" id="dw-thr-a" min="0" max="999" placeholder="—" oninput="calcPerc()" style="text-align:center;padding:6px 2px;font-size:12px"></div>
+        <div class="form-group"><label style="color:var(--accent);font-size:9px;text-align:center">B</label><input type="number" id="dw-thr-b" min="0" max="999" placeholder="—" oninput="calcPerc()" style="text-align:center;padding:6px 2px;font-size:12px"></div>
+        <div class="form-group"><label style="color:var(--amber);font-size:9px;text-align:center">C</label><input type="number" id="dw-thr-c" min="0" max="999" placeholder="—" oninput="calcPerc()" style="text-align:center;padding:6px 2px;font-size:12px"></div>
+        <div class="form-group"><label style="color:var(--amber);font-size:9px;text-align:center">D</label><input type="number" id="dw-thr-d" min="0" max="999" placeholder="—" oninput="calcPerc()" style="text-align:center;padding:6px 2px;font-size:12px"></div>
+        <div class="form-group"><label style="color:var(--red);font-size:9px;text-align:center">E</label><input type="number" id="dw-thr-e" min="0" max="999" placeholder="—" oninput="calcPerc()" style="text-align:center;padding:6px 2px;font-size:12px"></div>
+        <div class="form-group"><label style="color:var(--red);font-size:9px;text-align:center">F</label><input type="number" id="dw-thr-f" min="0" max="999" placeholder="—" oninput="calcPerc()" style="text-align:center;padding:6px 2px;font-size:12px"></div>
+        <div class="form-group"><label style="color:var(--red);font-size:9px;text-align:center">G</label><input type="number" id="dw-thr-g" min="0" max="999" placeholder="—" oninput="calcPerc()" style="text-align:center;padding:6px 2px;font-size:12px"></div>
+      </div>
+      <div id="thr-modal-grade-preview" style="display:none;align-items:center;gap:10px;padding:10px 14px;background:var(--bg-elevated);border-radius:var(--r-sm)">
+        <span style="font-size:12px;color:var(--text-3)">Current score grade:</span>
+        <span id="thr-modal-grade-val" style="font-family:var(--mono);font-size:22px;font-weight:800"></span>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost btn-sm" onclick="clearThrModal()"><i class="fas fa-eraser"></i> Clear</button>
+      <button class="btn btn-secondary" onclick="closeModal('thr-modal-overlay')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDrawerThresholds();closeModal('thr-modal-overlay')"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOAD SCRIPTS FROM AEZTRACK'S WEBSITE -->
+
+<script src="https://aeztrack.vercel.app/data.js"></script>
+<script src="https://aeztrack.vercel.app/sync.js"></script>
+<script src="https://aeztrack.vercel.app/app.js"></script>
+<script src="https://aeztrack.vercel.app/router.js"></script>
+<script src="https://aeztrack.vercel.app/views.js"></script>
+<script src="https://aeztrack.vercel.app/ui.js"></script>
+
+<!-- Settings Modal -->
+<div class="overlay" id="settings-overlay" onclick="if(event.target===this)closeModal('settings-overlay')" role="dialog" aria-modal="true" aria-label="Settings">
   <div class="modal" style="max-width:440px">
     <div class="modal-head">
-      <div><div class="modal-title">Welcome to AezTrack</div><div class="modal-subtitle">Quick guide — takes 30 seconds</div></div>
+      <div class="modal-title"><i class="fas fa-cog" style="color:var(--accent);margin-right:7px"></i>Settings</div>
+      <button class="modal-close" onclick="closeModal('settings-overlay')" aria-label="Close"><i class="fas fa-times"></i></button>
     </div>
-    <div class="modal-body" style="padding:20px 22px">
-      <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:20px">
-        <div style="display:flex;gap:14px;align-items:flex-start">
-          <div style="width:32px;height:32px;border-radius:50%;background:var(--accent-dim);border:1px solid var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);flex-shrink:0">1</div>
-          <div><div style="font-size:13px;font-weight:600;color:var(--text-1);margin-bottom:3px">Browse &amp; open past papers</div>
-          <div style="font-size:12px;color:var(--text-3);line-height:1.5">Go to <strong style="color:var(--text-2)">Past Papers</strong>, pick a subject in Filters, and open any paper directly from the browser.</div></div>
-        </div>
-        <div style="display:flex;gap:14px;align-items:flex-start">
-          <div style="width:32px;height:32px;border-radius:50%;background:var(--purple-dim);border:1px solid var(--purple);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--purple);flex-shrink:0">2</div>
-          <div><div style="font-size:13px;font-weight:600;color:var(--text-1);margin-bottom:3px">Log your marks in the tracker</div>
-          <div style="font-size:12px;color:var(--text-3);line-height:1.5">The <strong style="color:var(--text-2)">Dashboard</strong> shows a grid of all papers (2015–2025). Click any <span style="font-family:var(--mono);font-size:11px;color:var(--accent)">+</span> cell to enter your marks.</div></div>
-        </div>
-        <div style="display:flex;gap:14px;align-items:flex-start">
-          <div style="width:32px;height:32px;border-radius:50%;background:var(--green-dim);border:1px solid var(--green-border);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--green);flex-shrink:0">3</div>
-          <div><div style="font-size:13px;font-weight:600;color:var(--text-1);margin-bottom:3px">Track grades with thresholds</div>
-          <div style="font-size:12px;color:var(--text-3);line-height:1.5">When logging, grade boundaries are auto-fetched from the CIE PDF. The tracker then shows your grade (A*–G) instead of just a percentage.</div></div>
-        </div>
-        <div style="display:flex;gap:14px;align-items:flex-start">
-          <div style="width:32px;height:32px;border-radius:50%;background:var(--amber-dim);border:1px solid rgba(255,181,71,.3);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--amber);flex-shrink:0">4</div>
-          <div><div style="font-size:13px;font-weight:600;color:var(--text-1);margin-bottom:3px">Sync across devices (optional)</div>
-          <div style="font-size:12px;color:var(--text-3);line-height:1.5">Click <strong style="color:var(--text-2)">Cloud sync</strong> in the sidebar to back up your data. You'll get a passphrase — save it. No account needed.</div></div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:18px">
+
+      <!-- Avatar -->
+      <div>
+        <div class="section-label" style="margin-bottom:10px">Profile Picture</div>
+        <div style="display:flex;align-items:center;gap:14px">
+          <div id="settings-avatar-preview" style="width:64px;height:64px;border-radius:50%;overflow:hidden;border:2px solid var(--border);flex-shrink:0;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center">
+            <img id="settings-avatar-img" src="" alt="Avatar" style="display:none;width:100%;height:100%;object-fit:cover">
+            <div id="settings-avatar-placeholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-3)"><i class="fas fa-user" style="font-size:24px"></i></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <input type="file" id="avatar-file-input" style="display:none" accept="image/*" onchange="handleAvatarUpload(event)">
+            <button class="btn btn-secondary btn-sm" onclick="document.getElementById('avatar-file-input').click()"><i class="fas fa-upload"></i> Upload Photo</button>
+            <button class="btn btn-ghost btn-sm" onclick="clearAvatar()"><i class="fas fa-trash"></i> Remove</button>
+          </div>
         </div>
       </div>
-      <div style="padding:10px 12px;background:var(--bg-elevated);border-radius:var(--r-sm);font-size:11px;color:var(--text-3)">
-        <i class="fas fa-lock" style="margin-right:5px;color:var(--text-3)"></i>Data is stored locally on your device. Cloud sync is opt-in and requires your explicit consent.
+
+      <!-- Name -->
+      <div class="form-group">
+        <label>Display Name</label>
+        <input type="text" id="settings-name" placeholder="Your name" maxlength="40">
       </div>
+
+      <!-- Accent Color -->
+      <div class="form-group">
+        <label>Accent Colour</label>
+        <div style="display:flex;align-items:center;gap:12px">
+          <input type="color" id="settings-accent" value="#60a5fa" style="width:44px;height:36px;border:none;border-radius:var(--r-sm);cursor:pointer;background:none;padding:2px" oninput="applyAccentColor(this.value)">
+          <div style="display:flex;gap:7px;flex-wrap:wrap">
+            <button class="accent-swatch" style="background:#60a5fa" onclick="setAccentSwatch('#60a5fa')" title="Blue"></button>
+            <button class="accent-swatch" style="background:#34d399" onclick="setAccentSwatch('#34d399')" title="Green"></button>
+            <button class="accent-swatch" style="background:#c084fc" onclick="setAccentSwatch('#c084fc')" title="Purple"></button>
+            <button class="accent-swatch" style="background:#f472b6" onclick="setAccentSwatch('#f472b6')" title="Pink"></button>
+            <button class="accent-swatch" style="background:#fb923c" onclick="setAccentSwatch('#fb923c')" title="Orange"></button>
+            <button class="accent-swatch" style="background:#fbbf24" onclick="setAccentSwatch('#fbbf24')" title="Amber"></button>
+            <button class="accent-swatch" style="background:#f87171" onclick="setAccentSwatch('#f87171')" title="Red"></button>
+          </div>
+        </div>
+        <div class="micro-copy" style="margin-top:6px"><i class="fas fa-info-circle"></i> Accent colour applies immediately across the whole app.</div>
+      </div>
+
+      <!-- Danger Zone -->
+      <div style="border-top:1px solid var(--border);padding-top:16px">
+        <div class="section-label" style="font-size:12px;margin-bottom:8px;color:var(--red)"><i class="fas fa-exclamation-triangle" style="margin-right:6px"></i>Danger Zone</div>
+        <button class="btn btn-danger" style="width:100%;margin-bottom:10px" onclick="confirmResetLocalData()">
+          <i class="fas fa-trash-alt"></i> Reset All Local Data
+        </button>
+      </div>
+
+      <!-- Analyse Performance -->
+      <div style="border-top:1px solid var(--border);padding-top:16px">
+        <div class="section-label" style="font-size:12px;margin-bottom:8px">AI Analysis</div>
+        <p style="font-size:12px;color:var(--text-3);margin-bottom:10px;line-height:1.55">Get an AI-powered breakdown of your performance, weak areas, and revision recommendations.</p>
+        <button class="btn btn-secondary" style="width:100%" onclick="closeModal('settings-overlay');openAnalyzeModal()">
+          <i class="fas fa-brain" style="color:var(--purple)"></i> Analyse My Performance
+        </button>
+      </div>
+
+      <!-- Credits footer -->
+      <div style="border-top:1px solid var(--border);padding-top:14px;display:flex;flex-direction:column;gap:8px">
+        <a href="https://github.com/Aezdek/AezTrack" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:9px 14px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text-2);font-size:12px;font-weight:700;text-decoration:none;transition:all var(--t)" onmouseover="this.style.borderColor='var(--border-hi)';this.style.color='var(--text-1)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-2)'">
+          <i class="fab fa-github" style="font-size:14px"></i> Star on GitHub <i class="fas fa-star" style="font-size:10px;color:var(--amber)"></i>
+        </a>
+        <div style="text-align:center;font-size:11px;color:var(--text-3)">Created by <span style="color:var(--text-2);font-weight:700">@Aezdek</span> on Discord.</div>
+        <div style="text-align:center;font-size:11px;color:var(--text-3)">This tool is <span style="color:var(--text-2);font-weight:700">100% free</span> forever.</div>
+      </div>
+
     </div>
-    <div class="modal-foot" style="justify-content:space-between">
-      <button class="btn btn-ghost" style="font-size:12px" onclick="closeLaunch()">Skip</button>
-      <button class="btn btn-primary" onclick="startTour()">Let's go <i class="fas fa-arrow-right"></i></button>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('settings-overlay')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSettings()"><i class="fas fa-save"></i> Save</button>
     </div>
   </div>
 </div>
 
-<script src="https://aeztrack.vercel.app/app.js"></script>
-<!-- (c) 2026 Aezdek. All rights reserved. Do not redistribute. -->
+<script>
+function setAccentSwatch(c){document.getElementById('settings-accent').value=c;applyAccentColor(c)}
+</script>
+
+
+<!-- Assign Me Work Modal -->
+<div class="overlay" id="assign-overlay" onclick="if(event.target===this)closeModal('assign-overlay')" role="dialog" aria-modal="true" aria-label="Assign Me Work">
+  <div class="modal modal-lg" style="max-width:640px;max-height:92vh">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title"><i class="fas fa-dice" style="color:var(--accent);margin-right:7px"></i>Assign Me Work</div>
+        <div class="modal-subtitle">Randomly pick unlogged papers from your subjects</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('assign-overlay')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:16px">
+
+      <!-- Subjects -->
+      <div class="form-group">
+        <label>Subjects</label>
+        <div id="assign-sub-list" class="assign-sub-chips"></div>
+      </div>
+
+      <!-- Count + Year range + Session -->
+      <div style="display:grid;grid-template-columns:80px 1fr 1fr 1fr;gap:10px;align-items:end">
+        <div class="form-group"><label>Papers</label>
+          <input type="number" id="assign-count" value="3" min="1" max="50" style="text-align:center">
+        </div>
+        <div class="form-group"><label>Year From</label>
+          <input type="number" id="assign-yr-from" value="2018" min="2006" max="2025">
+        </div>
+        <div class="form-group"><label>Year To</label>
+          <input type="number" id="assign-yr-to" value="2025" min="2006" max="2025">
+        </div>
+        <div class="form-group"><label>Session</label>
+          <select id="assign-sess-filter">
+            <option value="">All</option>
+            <option value="May/June">May/June</option>
+            <option value="Oct/Nov">Oct/Nov</option>
+            <option value="Feb/March">Feb/March</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Regex filter + lock -->
+      <div class="form-group">
+        <label>Regex Filter <span class="label-note">optional — tested against "Subject Paper VarXX Session Year"</span></label>
+        <div style="display:flex;gap:7px;align-items:center">
+          <input type="text" id="assign-regex" placeholder='e.g. Chemistry.*Paper (2|4).*202[3-5]' style="font-family:var(--mono);font-size:12px">
+          <button class="btn btn-ghost btn-sm assign-lock-btn" id="assign-regex-lock" onclick="toggleRegexLock()" title="Lock regex"><i class="fas fa-unlock"></i></button>
+        </div>
+      </div>
+
+      <!-- AI Regex Generator -->
+      <details class="assign-ai-section">
+        <summary><i class="fas fa-magic" style="color:var(--purple);margin-right:6px"></i>Generate regex with AI</summary>
+        <div style="display:flex;flex-direction:column;gap:12px;padding:12px 14px 14px">
+
+          <!-- User describes their requirement -->
+          <div class="form-group">
+            <label>Describe what you want</label>
+            <input type="text" id="assign-ai-requirement" placeholder="e.g. Only Chemistry Theory papers from the last 3 years I haven't done">
+          </div>
+
+          <!-- API Source picker -->
+          <div class="form-group">
+            <label>AI Source</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap" id="assign-ai-source-btns">
+              <button class="assign-ai-src-btn active" data-src="gemini" onclick="selectAiSrc(this)">
+                <i class="fas fa-star"></i> Gemini 2.0 Flash <span class="assign-ai-free-badge">Free</span>
+              </button>
+              <button class="assign-ai-src-btn" data-src="openai" onclick="selectAiSrc(this)">
+                <i class="fas fa-robot"></i> OpenAI
+              </button>
+              <button class="assign-ai-src-btn" data-src="prompt" onclick="selectAiSrc(this)">
+                <i class="fas fa-copy"></i> Copy Prompt
+              </button>
+            </div>
+          </div>
+
+          <!-- API key input (hidden for "prompt" mode) -->
+          <div id="assign-key-row" class="form-group">
+            <label id="assign-key-label">Gemini API Key <span class="label-note">— free at <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent)">aistudio.google.com</a></span></label>
+            <input type="password" id="assign-gemini-key" placeholder="AIza...">
+          </div>
+
+          <!-- Prompt-only output box -->
+          <div id="assign-prompt-area" style="display:none">
+            <div class="form-group">
+              <label>Paste this into any AI</label>
+              <textarea id="assign-prompt-box" rows="6" style="font-size:11.5px;font-family:var(--mono);resize:vertical" readonly></textarea>
+              <button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="copyRegexPrompt()"><i class="fas fa-copy"></i> Copy prompt</button>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" id="assign-ai-run-btn" onclick="runAiRegex()"><i class="fas fa-magic"></i> Generate &amp; Apply</button>
+        </div>
+      </details>
+
+      <!-- Status -->
+      <div id="assign-status" class="assign-status" style="display:none"></div>
+
+      <!-- Results -->
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:11px;color:var(--text-3)" id="assign-avail-count"></span>
+          <button class="btn btn-ghost btn-sm" onclick="assignReroll()"><i class="fas fa-sync-alt"></i> Reroll</button>
+        </div>
+        <div id="assign-result-list" style="display:flex;flex-direction:column;gap:5px;max-height:240px;overflow-y:auto"></div>
+      </div>
+
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('assign-overlay')">Close</button>
+      <button class="btn btn-primary" onclick="assignReroll()"><i class="fas fa-dice"></i> Assign</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tracker Cell Action Modal -->
+<div class="overlay" id="tc-action-overlay" onclick="if(event.target===this)closeModal('tc-action-overlay')" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:340px">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="tca-title">Paper</div>
+        <div class="modal-subtitle" id="tca-sub"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('tc-action-overlay')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:10px" id="tca-body">
+    </div>
+  </div>
+</div>
+
+
+<!-- Analyse Performance Modal -->
+<div class="overlay" id="analyze-overlay" onclick="if(event.target===this)closeModal('analyze-overlay')" role="dialog" aria-modal="true">
+  <div class="modal modal-lg" style="max-width:600px;max-height:92vh">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title"><i class="fas fa-brain" style="color:var(--purple);margin-right:7px"></i>Analyse My Performance</div>
+        <div class="modal-subtitle">AI-powered insight into your revision patterns</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('analyze-overlay')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:16px">
+
+      <!-- Mode picker -->
+      <div class="form-group">
+        <label>Mode</label>
+        <div style="display:flex;gap:8px">
+          <button class="assign-ai-src-btn active" data-mode="ai" onclick="selectAnalyzeMode(this)">
+            <i class="fas fa-magic"></i> AI Analysis
+          </button>
+          <button class="assign-ai-src-btn" data-mode="prompt" onclick="selectAnalyzeMode(this)">
+            <i class="fas fa-copy"></i> Copy Prompt
+          </button>
+        </div>
+      </div>
+
+      <!-- AI mode settings -->
+      <div id="analyze-ai-section">
+        <div class="form-group">
+          <label>AI Source</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="assign-ai-src-btn active" data-src="gemini" onclick="selectAnalyzeSrc(this)">
+              <i class="fas fa-star"></i> Gemini 2.0 Flash <span class="assign-ai-free-badge">Free</span>
+            </button>
+            <button class="assign-ai-src-btn" data-src="openai" onclick="selectAnalyzeSrc(this)">
+              <i class="fas fa-robot"></i> OpenAI
+            </button>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:10px">
+          <label id="analyze-key-label">Gemini API Key <span class="label-note">— free at <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent)">aistudio.google.com</a></span></label>
+          <input type="password" id="analyze-api-key" placeholder="AIza...">
+        </div>
+      </div>
+
+      <!-- Consent -->
+      <div id="analyze-consent-box" style="background:var(--amber-dim);border:1px solid var(--amber-border);border-radius:var(--r-sm);padding:12px 14px">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px;color:var(--text-2);line-height:1.55">
+          <input type="checkbox" id="analyze-consent-check" style="margin-top:3px;flex-shrink:0;accent-color:var(--accent)">
+          <span>I understand my performance data (subjects, scores, wrong questions, and notes) will be sent to the selected AI service for analysis. No personally identifiable information is included. I consent to this.</span>
+        </label>
+      </div>
+
+      <!-- What will be sent preview -->
+      <details style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--r-sm)">
+        <summary style="padding:10px 13px;cursor:pointer;font-size:12px;font-weight:700;color:var(--text-2);list-style:none">
+          <i class="fas fa-eye" style="margin-right:6px"></i>What data will be sent?
+        </summary>
+        <div id="analyze-data-preview" style="padding:10px 13px;border-top:1px solid var(--border);font-size:11.5px;color:var(--text-3);font-family:var(--mono);white-space:pre-wrap;max-height:160px;overflow-y:auto"></div>
+      </details>
+
+      <!-- Prompt output (prompt mode) -->
+      <div id="analyze-prompt-area" style="display:none">
+        <div class="form-group">
+          <label>Paste this into any AI</label>
+          <textarea id="analyze-prompt-box" rows="8" style="font-size:11px;font-family:var(--mono);resize:vertical" readonly></textarea>
+          <button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="copyAnalyzePrompt()"><i class="fas fa-copy"></i> Copy</button>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div id="analyze-result" style="display:none;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--r);padding:16px;font-size:13px;line-height:1.7;color:var(--text-1);white-space:pre-wrap;max-height:320px;overflow-y:auto"></div>
+
+      <!-- Status -->
+      <div id="analyze-status" class="assign-status" style="display:none"></div>
+
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('analyze-overlay')">Close</button>
+      <button class="btn btn-primary" id="analyze-run-btn" onclick="runAnalyze()"><i class="fas fa-brain"></i> Analyse</button>
+    </div>
+  </div>
+</div>
+
 </body>
-</html>
+</html> 

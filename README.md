@@ -124,9 +124,7 @@ On first load, AezTrack downloads a bulk JSON file (~420 KB) containing all know
 ---
 
 ## License
-
-**MIT**
-MIT License
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 
 Copyright (c) 2026 Aezdek
 

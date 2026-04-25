@@ -6,7 +6,7 @@ A fast, offline-first web app for tracking IGCSE past paper attempts — with cl
 
 > **Note:** This repo lacks full commit history as the host website uses a separate private repository. The public repo may not reflect the latest changes.
 > Current Version: h4bfyrx08h
-
+> Some features are to be added in the future! (but are still mentioned here)
 ---
 
 ## Features

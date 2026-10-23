@@ -1,4 +1,5 @@
 # AezTrack
+- Updating soon to add support for AS & A levels
 
 A fast, offline-first web app for tracking IGCSE past paper attempts — with cloud sync, grade threshold lookup, performance analytics, AI-powered revision coaching, a planner, and a full past papers browser.
 
